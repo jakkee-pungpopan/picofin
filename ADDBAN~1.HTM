@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ADDBANK — ตัวอย่าง</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/3.21.0/tabler-icons.min.css">
+<style>
+  :root{--grn:#0E8A4F;--dk:#0A5E36;--lime:#8BC53F;--danger:#E5484D;--bg:#F1F7F1;--mut:#6B7280;--txt:#15301c;}
+  *{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI','Sarabun',Tahoma,sans-serif;}
+  body{background:#08311d;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:16px;}
+  .wrap{text-align:center;}
+  .hint{color:#9fcdaf;font-size:13px;margin-bottom:14px;}
+  .phone{width:360px;height:740px;background:var(--dk);border-radius:40px;padding:13px;box-shadow:0 20px 60px rgba(0,0,0,.5);position:relative;}
+  .screen{width:100%;height:100%;background:var(--bg);border-radius:28px;overflow:hidden;position:relative;}
+  .scrollable{height:100%;overflow-y:auto;}
+  .scrollable::-webkit-scrollbar{width:0;}
+  button{cursor:pointer;border:none;font-size:16px;}
+  .btn{width:100%;background:var(--grn);color:#fff;border-radius:12px;padding:14px;font-weight:600;}
+  .btn:active{transform:scale(.99);}
+  .topbar{background:var(--grn);color:#fff;padding:16px 18px;display:flex;align-items:center;gap:12px;}
+  .topbar .ti{font-size:20px;}
+  .banner{background:#FFF3CD;color:#7A5C00;font-size:10px;text-align:center;padding:5px;}
+  .card{background:#fff;border-radius:14px;padding:14px;margin-bottom:10px;}
+  .row{display:flex;justify-content:space-between;font-size:13px;padding:4px 0;}
+  .row .k{color:var(--mut);} .row .v{color:var(--txt);font-weight:600;}
+  .field{background:var(--bg);border:1px solid #d8e3d8;border-radius:10px;padding:12px;font-size:15px;width:100%;margin:6px 0 14px;color:var(--txt);}
+  .label{font-size:12px;color:var(--mut);}
+  .nav{position:absolute;bottom:0;left:0;right:0;background:#fff;border-top:.5px solid #e3ece3;display:flex;justify-content:space-around;padding:8px 0 12px;}
+  .nav div{flex:1;text-align:center;color:var(--mut);font-size:11px;cursor:pointer;}
+  .nav div.on{color:var(--grn);} .nav .ti{font-size:21px;display:block;}
+  .quick{display:flex;gap:6px;margin:6px 0 16px;}
+  .quick>div{flex:1;text-align:center;cursor:pointer;}
+  .qic{width:50px;height:50px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;margin:0 auto;color:var(--grn);}
+  .qic .ti{font-size:22px;}
+  .txn{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:.5px solid #e7efe7;}
+  .av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;}
+  .pindots{display:flex;justify-content:center;gap:12px;margin:24px 0;}
+  .pindot{width:16px;height:16px;border-radius:50%;border:2px solid #fff;}
+  .keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;padding:0 40px;}
+  .key{background:rgba(255,255,255,.14);color:#fff;border-radius:50%;aspect-ratio:1;font-size:24px;display:flex;align-items:center;justify-content:center;}
+  .modal{position:absolute;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;padding:24px;}
+  .toast{position:absolute;left:16px;right:16px;bottom:80px;background:#15301c;color:#fff;font-size:12px;padding:12px;border-radius:12px;text-align:center;}
+  .pill{display:inline-block;font-size:11px;padding:3px 10px;border-radius:20px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hint">ADDBANK • ตัวอย่างเท่านั้น — ไม่ใช่ธุรกรรมจริง</div>
+  <div class="phone"><div class="screen" id="screen"></div></div>
+</div>
+<script>
+var GRN='#0E8A4F',LIME='#8BC53F',DANGER='#E5484D',MUT='#6B7280';
+var S={
+  pin:'',pinTarget:'', tab:'home', hide:false,
+  user:{name:'สมชาย เดโม',email:'somchai@addbank.local',phone:'081-000-0001',pinSet:true,bio:true},
+  accounts:[
+    {id:'a1',name:'บัญชีออมทรัพย์',type:'ออมทรัพย์',no:'4821093777',bal:2500.00},
+    {id:'a2',name:'บัญชีกระแสรายวัน',type:'กระแสรายวัน',no:'7720451893',bal:15000.00}
+  ],
+  txns:[
+    {t:'รับเงินเข้า',d:'28 มิ.ย. 2569 09:12',a:1000,dir:'CREDIT'},
+    {t:'หารค่ากาแฟ',d:'27 มิ.ย. 2569 18:40',a:250,dir:'DEBIT'},
+    {t:'เงินเดือน',d:'25 มิ.ย. 2569 08:00',a:15000,dir:'CREDIT'}
+  ],
+  favorites:[
+    {name:'มาลี',no:'9876543210',bank:'ADDBANK'},
+    {name:'แม่ พร้อมเพย์',no:'082-000-0099',bank:'พร้อมเพย์'}
+  ],
+  notifications:[
+    {t:'ยินดีต้อนรับสู่ ADDBANK',b:'ระบบตัวอย่าง ไม่ใช่ธุรกรรมจริง',read:false},
+    {t:'รับเงินเข้า',b:'คุณได้รับ ฿1,000.00',read:false},
+    {t:'เงินเดือนเข้าบัญชี',b:'฿15,000.00 เข้าบัญชีแล้ว',read:true}
+  ]
+};
+var el=document.getElementById('screen');
+function money(n){return '฿'+Number(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});}
+function total(){return S.accounts.reduce(function(s,a){return s+a.bal;},0);}
+function toast(msg){var t=document.createElement('div');t.className='toast';t.textContent=msg;el.appendChild(t);setTimeout(function(){t.remove();},1900);}
+
+function login(){
+  el.innerHTML='<div style="background:'+GRN+';height:100%;padding:30px 22px;color:#fff;display:flex;flex-direction:column;">'+
+    '<div style="margin-top:54px;text-align:center;"><i class="ti ti-leaf" style="color:'+LIME+';font-size:46px;"></i>'+
+    '<div style="font-size:28px;font-weight:600;margin-top:6px;">ADDBANK</div>'+
+    '<div style="color:#d8efd8;font-size:13px;margin-top:4px;">ธนาคารที่ใช้ง่าย</div></div>'+
+    '<div style="background:#fff;border-radius:18px;padding:18px;margin-top:40px;">'+
+      '<div class="label">อีเมล</div><div class="field">somchai@addbank.local</div>'+
+      '<div class="label">รหัสผ่าน</div><div class="field" style="letter-spacing:3px;">............</div>'+
+      '<button class="btn" onclick="afterLogin()">เข้าสู่ระบบ</button>'+
+      '<div style="text-align:center;margin-top:12px;color:'+MUT+';font-size:13px;"><i class="ti ti-fingerprint"></i> เข้าสู่ระบบด้วยไบโอเมตริก</div>'+
+      '<div style="text-align:center;margin-top:10px;color:'+GRN+';font-size:13px;">สมัครสมาชิกใหม่</div>'+
+    '</div>'+
+    '<div style="margin-top:auto;text-align:center;color:#ffffff80;font-size:10px;">ตัวอย่างเท่านั้น — ไม่ใช่ธุรกรรมจริง</div></div>';
+}
+function afterLogin(){ S.user.pinSet?pinScreen('verify'):pinScreen('set'); }
+
+function pinScreen(mode){
+  S.pin='';S.pinTarget=mode;
+  var title=mode==='set'?'ตั้งรหัส PIN 6 หลัก':'ใส่รหัส PIN';
+  el.innerHTML='<div style="background:'+GRN+';height:100%;color:#fff;display:flex;flex-direction:column;align-items:center;padding-top:64px;">'+
+    '<i class="ti ti-lock" style="font-size:38px;"></i>'+
+    '<div style="font-size:19px;font-weight:500;margin-top:14px;">'+title+'</div>'+
+    '<div class="pindots" id="dots"></div><div style="flex:1;"></div>'+
+    '<div class="keypad" style="padding-bottom:30px;">'+
+      [1,2,3,4,5,6,7,8,9].map(function(n){return '<div class="key" onclick="pinKey('+n+')">'+n+'</div>';}).join('')+
+      '<div class="key" style="background:none;" onclick="pinBio()"><i class="ti ti-fingerprint"></i></div>'+
+      '<div class="key" onclick="pinKey(0)">0</div>'+
+      '<div class="key" style="background:none;" onclick="pinDel()"><i class="ti ti-backspace"></i></div>'+
+    '</div></div>';
+  drawDots();
+}
+function drawDots(){var d=document.getElementById('dots');if(!d)return;d.innerHTML='';for(var i=0;i<6;i++){var x=document.createElement('div');x.className='pindot';if(i<S.pin.length)x.style.background=LIME;d.appendChild(x);}}
+function pinKey(n){if(S.pin.length>=6)return;S.pin+=n;drawDots();if(S.pin.length===6)setTimeout(function(){S.user.pinSet=true;home();},200);}
+function pinDel(){S.pin=S.pin.slice(0,-1);drawDots();}
+function pinBio(){if(S.pinTarget==='verify'){toast('ยืนยันไบโอเมตริกสำเร็จ');setTimeout(home,500);}}
+
+function shell(body){
+  var tabs=[['home','ti-home','หน้าหลัก'],['cards','ti-credit-card','บัญชี'],['activity','ti-history','รายการ'],['profile','ti-user','โปรไฟล์']];
+  el.innerHTML='<div class="scrollable" style="padding-bottom:70px;">'+body+'</div>'+
+    '<div class="nav">'+tabs.map(function(t){return '<div class="'+(S.tab===t[0]?'on':'')+'" onclick="go(\''+t[0]+'\')"><i class="ti '+t[1]+'"></i>'+t[2]+'</div>';}).join('')+'</div>';
+}
+function go(t){S.tab=t;({home:home,cards:cards,activity:activity,profile:profile}[t])();}
+
+function home(){
+  S.tab='home';
+  var bal=S.hide?'฿ ••••••':money(total());
+  var accs=S.accounts.map(function(a){return '<div class="card" style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">'+
+    '<div class="av" style="background:'+LIME+';color:#15301c;"><i class="ti ti-wallet"></i></div>'+
+    '<div style="flex:1;"><div style="font-size:14px;">'+a.name+'</div><div style="font-size:11px;color:'+MUT+';">'+a.type+' • '+a.no+'</div></div>'+
+    '<div style="font-weight:600;font-size:14px;">'+(S.hide?'••••':money(a.bal))+'</div></div>';}).join('');
+  var quick=[['ti-send','โอนเงิน','transfer'],['ti-qrcode','สแกน QR','qrScan'],['ti-receipt','จ่ายบิล','bill'],['ti-device-mobile','เติมเงิน','topup'],
+             ['ti-qrcode','รับเงิน','qrReceive'],['ti-star','รายการโปรด','favs'],['ti-bell','แจ้งเตือน','notifications'],['ti-shield','ความปลอดภัย','security']];
+  var q=quick.map(function(x){return '<div onclick="'+x[2]+'()"><div class="qic"><i class="ti '+x[0]+'"></i></div><div style="font-size:10px;margin-top:5px;">'+x[1]+'</div></div>';});
+  var qrows='<div class="quick">'+q.slice(0,4).join('')+'</div><div class="quick">'+q.slice(4).join('')+'</div>';
+  var tx=S.txns.slice(0,4).map(txnRow).join('');
+  shell('<div class="topbar" style="justify-content:space-between;"><div style="font-size:15px;">สวัสดี, '+S.user.name.split(' ')[0]+'</div>'+
+    '<div style="display:flex;gap:14px;"><i class="ti ti-bell" onclick="notifications()"></i><i class="ti ti-logout" onclick="login()"></i></div></div>'+
+    '<div class="banner">ตัวอย่างเท่านั้น — ไม่ใช่ธุรกรรมจริง</div>'+
+    '<div style="padding:14px 16px;"><div style="background:'+GRN+';border-radius:16px;padding:18px;color:#fff;">'+
+      '<div style="display:flex;justify-content:space-between;align-items:center;"><span style="color:#ffffffc0;font-size:13px;">ยอดเงินรวม</span>'+
+      '<i class="ti '+(S.hide?'ti-eye-off':'ti-eye')+'" style="color:#ffffffc0;cursor:pointer;" onclick="S.hide=!S.hide;home()"></i></div>'+
+      '<div style="font-size:30px;font-weight:600;margin-top:6px;">'+bal+'</div></div>'+
+      '<div style="margin:14px 0;">'+accs+'</div>'+qrows+
+      '<div style="font-size:15px;font-weight:600;margin-bottom:4px;">รายการล่าสุด</div>'+tx+'</div>');
+}
+function txnRow(x){var c=x.dir==='CREDIT';return '<div class="txn"><div class="av" style="background:'+(c?GRN:DANGER)+';"><i class="ti '+(c?'ti-arrow-down-left':'ti-arrow-up-right')+'"></i></div>'+
+  '<div style="flex:1;"><div style="font-size:13px;">'+x.t+'</div><div style="font-size:11px;color:'+MUT+';">'+x.d+'</div></div>'+
+  '<div style="font-weight:600;font-size:13px;color:'+(c?GRN:DANGER)+';">'+(c?'+':'-')+money(x.a)+'</div></div>';}
+
+function cards(){
+  S.tab='cards';
+  shell('<div class="topbar"><span style="font-size:16px;">บัญชีของฉัน</span></div><div style="padding:16px;">'+
+    S.accounts.map(function(a){return '<div style="background:'+GRN+';color:#fff;border-radius:16px;padding:18px;margin-bottom:12px;">'+
+      '<div style="font-size:13px;color:#ffffffc0;">'+a.type+'</div>'+
+      '<div style="font-size:15px;margin:2px 0 14px;">'+a.name+'</div>'+
+      '<div style="font-size:26px;font-weight:600;">'+money(a.bal)+'</div>'+
+      '<div style="font-size:13px;color:#ffffffc0;margin-top:8px;letter-spacing:1px;">'+a.no+'</div></div>';}).join('')+'</div>');
+}
+function activity(){
+  S.tab='activity';
+  shell('<div class="topbar"><span style="font-size:16px;">ประวัติธุรกรรม</span></div><div style="padding:16px;">'+S.txns.map(txnRow).join('')+'</div>');
+}
+
+function transfer(){
+  var opts=S.accounts.map(function(a){return '<option value="'+a.id+'">'+a.name+' • '+money(a.bal)+'</option>';}).join('');
+  var chans=[['OWN','บัญชีตัวเอง'],['OTHER','บัญชีอื่น'],['PROMPTPAY','พร้อมเพย์']];
+  el.innerHTML='<div class="scrollable"><div class="topbar"><i class="ti ti-arrow-left" onclick="home()"></i><span style="font-size:16px;">โอนเงิน</span></div>'+
+    '<div style="padding:18px 16px;"><div class="label">จากบัญชี</div><select class="field" id="from">'+opts+'</select>'+
+    '<div class="label">ช่องทาง</div><div class="quick" id="chan" style="margin:6px 0 14px;">'+
+      chans.map(function(c,i){return '<div data-c="'+c[0]+'" onclick="setChan(\''+c[0]+'\')" style="padding:9px;border-radius:10px;font-size:12px;border:1px solid '+(i===1?GRN:'#d8e3d8')+';background:'+(i===1?GRN:'#fff')+';color:'+(i===1?'#fff':'#15301c')+';">'+c[1]+'</div>';}).join('')+'</div>'+
+    '<div class="label">บัญชีปลายทาง / พร้อมเพย์</div><input class="field" id="to" value="9876543210">'+
+    '<div class="label">จำนวนเงิน (บาท)</div><input class="field" id="amt" type="number" value="500" style="font-size:20px;">'+
+    '<div id="err" style="color:'+DANGER+';font-size:12px;min-height:16px;"></div>'+
+    '<button class="btn" onclick="doTransfer()">ถัดไป</button></div></div>';
+  S._chan='OTHER';
+}
+function setChan(c){S._chan=c;Array.prototype.forEach.call(document.querySelectorAll('#chan [data-c]'),function(n){var on=n.getAttribute('data-c')===c;n.style.background=on?GRN:'#fff';n.style.color=on?'#fff':'#15301c';n.style.border='1px solid '+(on?GRN:'#d8e3d8');});}
+function doTransfer(){
+  var from=S.accounts.filter(function(a){return a.id===document.getElementById('from').value;})[0];
+  var to=document.getElementById('to').value.trim(),amt=parseFloat(document.getElementById('amt').value),err=document.getElementById('err');
+  if(!to){err.textContent='กรุณาใส่บัญชีปลายทาง';return;}
+  if(!amt||amt<=0){err.textContent='กรุณาใส่จำนวนเงินที่ถูกต้อง';return;}
+  if(amt>200000){err.textContent='เกินวงเงินตัวอย่าง (200,000)';return;}
+  if(amt>from.bal){err.textContent='ยอดเงินไม่พอ';return;}
+  var m=document.createElement('div');m.className='modal';
+  m.innerHTML='<div class="card" style="width:100%;"><div style="font-size:16px;font-weight:600;margin-bottom:10px;">ยืนยันการโอน</div>'+
+    rowH('จาก',from.name)+rowH('ไปยัง',to)+rowH('จำนวนเงิน',money(amt))+
+    '<div style="font-size:10px;color:'+MUT+';margin:8px 0 12px;">ตัวอย่างเท่านั้น — ไม่ใช่ธุรกรรมจริง</div>'+
+    '<div style="display:flex;gap:8px;"><button onclick="this.closest(\'.modal\').remove()" style="flex:1;background:#fff;border:1px solid #d8e3d8;border-radius:10px;padding:11px;">ยกเลิก</button>'+
+    '<button class="btn" style="flex:1;" onclick="finishTransfer(\''+from.id+'\',\''+to+'\','+amt+')">ยืนยัน</button></div></div>';
+  el.appendChild(m);
+}
+function rowH(k,v){return '<div class="row"><span class="k">'+k+'</span><span class="v">'+v+'</span></div>';}
+function finishTransfer(fid,to,amt){
+  var from=S.accounts.filter(function(a){return a.id===fid;})[0];from.bal-=amt;
+  S.txns.unshift({t:'โอนไปยัง '+to,d:'28 มิ.ย. 2569 '+new Date().toLocaleTimeString('th-TH').slice(0,5),a:amt,dir:'DEBIT'});
+  S.notifications.unshift({t:'โอนเงินสำเร็จ',b:'คุณโอน '+money(amt)+' ไปยัง '+to,read:false});
+  var ref='TXN'+Date.now().toString(36).toUpperCase().slice(-7);
+  el.innerHTML='<div style="height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center;">'+
+    '<div style="width:78px;height:78px;border-radius:50%;background:'+GRN+';display:flex;align-items:center;justify-content:center;"><i class="ti ti-check" style="color:#fff;font-size:42px;"></i></div>'+
+    '<div style="font-size:20px;font-weight:600;margin-top:14px;">โอนเงินสำเร็จ</div>'+
+    '<div style="font-size:30px;font-weight:600;color:'+GRN+';margin:8px 0;">'+money(amt)+'</div>'+
+    '<div class="card" style="width:100%;">'+rowH('เลขอ้างอิง',ref)+rowH('ไปยัง',to)+rowH('ยอดคงเหลือ',money(from.bal))+'</div>'+
+    '<button class="btn" style="margin-top:20px;" onclick="home()">เสร็จสิ้น</button></div>';
+}
+
+function simplePay(title,icon,fields,okMsg){
+  el.innerHTML='<div class="scrollable"><div class="topbar"><i class="ti ti-arrow-left" onclick="home()"></i><span style="font-size:16px;">'+title+'</span></div>'+
+    '<div style="padding:18px 16px;text-align:center;"><i class="ti '+icon+'" style="font-size:40px;color:'+GRN+';"></i>'+
+    fields+'<button class="btn" style="margin-top:8px;" onclick="paySuccess(\''+okMsg+'\')">ยืนยัน</button>'+
+    '<div style="font-size:11px;color:'+MUT+';margin-top:12px;">ฟีเจอร์ตัวอย่าง — ไม่มีธุรกรรมจริง</div></div></div>';
+}
+function bill(){simplePay('จ่ายบิล','ti-receipt','<div class="label" style="text-align:left;margin-top:14px;">ผู้ให้บริการ</div><select class="field"><option>การไฟฟ้านครหลวง</option><option>การประปานครหลวง</option></select><div class="label" style="text-align:left;">เลขอ้างอิง</div><input class="field" value="1234567890"><div class="label" style="text-align:left;">จำนวนเงิน</div><input class="field" type="number" value="850">','จ่ายบิลสำเร็จ (ตัวอย่าง)');}
+function topup(){simplePay('เติมเงินมือถือ','ti-device-mobile','<div class="label" style="text-align:left;margin-top:14px;">เบอร์โทรศัพท์</div><input class="field" value="081-000-0001"><div class="label" style="text-align:left;">จำนวนเงิน</div><select class="field"><option>50</option><option>100</option><option>300</option></select>','เติมเงินสำเร็จ (ตัวอย่าง)');}
+function paySuccess(msg){toast(msg);setTimeout(home,1000);}
+
+function qrReceive(){
+  el.innerHTML='<div class="scrollable"><div class="topbar"><i class="ti ti-arrow-left" onclick="home()"></i><span style="font-size:16px;">รับเงิน</span></div>'+
+    '<div style="padding:30px 16px;text-align:center;">'+
+    '<div style="background:#fff;display:inline-block;padding:20px;border-radius:16px;"><i class="ti ti-qrcode" style="font-size:150px;color:'+GRN+';"></i></div>'+
+    '<div style="margin-top:16px;font-size:15px;font-weight:600;">'+S.user.name+'</div>'+
+    '<div style="color:'+MUT+';font-size:13px;">'+S.accounts[0].no+'</div>'+
+    '<div style="font-size:11px;color:'+MUT+';margin-top:14px;">QR ตัวอย่าง — ไม่ใช่พร้อมเพย์จริง</div></div></div>';
+}
+function qrScan(){
+  el.innerHTML='<div class="scrollable"><div class="topbar"><i class="ti ti-arrow-left" onclick="home()"></i><span style="font-size:16px;">สแกน QR</span></div>'+
+    '<div style="padding:30px 16px;text-align:center;"><div style="width:200px;height:200px;border:3px dashed '+LIME+';border-radius:20px;margin:0 auto;display:flex;align-items:center;justify-content:center;color:'+MUT+';"><i class="ti ti-scan" style="font-size:60px;"></i></div>'+
+    '<button class="btn" style="margin-top:24px;" onclick="toast(\'สแกนได้ 9876543210\');setTimeout(transfer,900)">จำลองการสแกน</button>'+
+    '<div style="font-size:11px;color:'+MUT+';margin-top:12px;">ตัวสแกนตัวอย่าง</div></div></div>';
+}
+function favs(){
+  el.innerHTML='<div class="scrollable"><div class="topbar"><i class="ti ti-arrow-left" onclick="home()"></i><span style="font-size:16px;">รายการโปรด</span></div>'+
+    '<div style="padding:16px;">'+S.favorites.map(function(f){return '<div class="card" style="display:flex;align-items:center;gap:10px;" onclick="transfer()">'+
+      '<div class="av" style="background:'+GRN+';"><i class="ti ti-user"></i></div><div style="flex:1;"><div style="font-size:14px;font-weight:600;">'+f.name+'</div>'+
+      '<div style="font-size:12px;color:'+MUT+';">'+f.bank+' • '+f.no+'</div></div><i class="ti ti-send" style="color:'+GRN+';"></i></div>';}).join('')+'</div></div>';
+}
+function notifications(){
+  el.innerHTML='<div class="scrollable"><div class="topbar"><i class="ti ti-arrow-left" onclick="home()"></i><span style="font-size:16px;">การแจ้งเตือน</span></div>'+
+    '<div style="padding:16px;">'+S.notifications.map(function(n){return '<div class="card" style="display:flex;gap:10px;'+(n.read?'opacity:.6;':'')+'">'+
+      '<i class="ti ti-bell" style="font-size:20px;color:'+GRN+';"></i><div style="flex:1;"><div style="font-size:14px;font-weight:600;">'+n.t+'</div>'+
+      '<div style="font-size:12px;color:'+MUT+';">'+n.b+'</div></div>'+(n.read?'':'<span class="pill" style="background:'+LIME+';color:#15301c;">ใหม่</span>')+'</div>';}).join('')+'</div></div>';
+  S.notifications.forEach(function(n){n.read=true;});
+}
+function security(){
+  el.innerHTML='<div class="scrollable"><div class="topbar"><i class="ti ti-arrow-left" onclick="home()"></i><span style="font-size:16px;">ตั้งค่าความปลอดภัย</span></div>'+
+    '<div style="padding:8px 0;">'+
+    secRow('ti-pin','เปลี่ยนรหัส PIN','รหัส PIN 6 หลัก','onclick="pinScreen(\'set\')"')+
+    secRow('ti-fingerprint','Face ID / ลายนิ้วมือ',(S.user.bio?'เปิดใช้งาน':'ปิดใช้งาน'),'onclick="S.user.bio=!S.user.bio;security()"')+
+    secRow('ti-device-mobile','จัดการอุปกรณ์','1 อุปกรณ์','')+
+    '<div style="padding:16px;font-size:11px;color:'+MUT+';">ตัวอย่างเท่านั้น — ไม่ใช่ธุรกรรมจริง</div></div></div>';
+}
+function secRow(icon,t,sub,act){return '<div class="card" style="margin:0 16px 10px;display:flex;align-items:center;gap:12px;" '+act+'>'+
+  '<i class="ti '+icon+'" style="font-size:22px;color:'+GRN+';"></i><div style="flex:1;"><div style="font-size:14px;">'+t+'</div>'+
+  '<div style="font-size:12px;color:'+MUT+';">'+sub+'</div></div><i class="ti ti-chevron-right" style="color:'+MUT+';"></i></div>';}
+
+function profile(){
+  S.tab='profile';
+  var init=S.user.name.slice(0,1);
+  shell('<div class="topbar"><span style="font-size:16px;">โปรไฟล์</span></div>'+
+    '<div style="padding:20px 16px;text-align:center;"><div style="width:80px;height:80px;border-radius:50%;background:'+GRN+';color:#fff;display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:600;margin:0 auto;">'+init+'</div>'+
+    '<div style="font-size:18px;font-weight:600;margin-top:12px;">'+S.user.name+'</div>'+
+    '<div style="color:'+MUT+';font-size:13px;">'+S.user.email+'</div></div>'+
+    '<div style="padding:0 0 16px;">'+
+    secRow('ti-user','ข้อมูลส่วนตัว',S.user.phone,'')+
+    secRow('ti-shield','ความปลอดภัย','PIN และไบโอเมตริก','onclick="security()"')+
+    secRow('ti-star','รายการโปรด',S.favorites.length+' รายการ','onclick="favs()"')+
+    secRow('ti-bell','การแจ้งเตือน','','onclick="notifications()"')+
+    secRow('ti-logout','ออกจากระบบ','','onclick="login()"')+'</div>');
+}
+
+login();
+</script>
+</body>
+</html>

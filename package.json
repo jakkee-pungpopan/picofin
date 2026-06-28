@@ -1,0 +1,19 @@
+{
+  "name": "novabank",
+  "version": "0.1.0",
+  "private": true,
+  "description": "NovaBank - Demo Mobile Banking System (sandbox only)",
+  "workspaces": [
+    "apps/backend-api",
+    "apps/admin-dashboard",
+    "packages/shared-types",
+    "packages/ui-kit"
+  ],
+  "scripts": {
+    "dev:backend": "npm --workspace apps/backend-api run start:dev",
+    "dev:admin": "npm --workspace apps/admin-dashboard run dev",
+    "up": "docker compose up -d --build",
+    "down": "docker compose down",
+    "seed": "npm --workspace apps/backend-api run seed"
+  }
+}

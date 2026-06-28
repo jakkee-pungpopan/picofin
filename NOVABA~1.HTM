@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NovaBank — Demo</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/3.21.0/tabler-icons.min.css">
+<style>
+  :root{--ind:#1B2A6B;--ind2:#111C4A;--teal:#00C2A8;--danger:#E5484D;--bg:#F4F6FB;--mut:#6B7280;--txt:#1A1D29;}
+  *{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',Roboto,system-ui,sans-serif;}
+  body{background:#0d1330;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:16px;}
+  .wrap{text-align:center;}
+  .hint{color:#9aa3c7;font-size:13px;margin-bottom:14px;}
+  .phone{width:360px;height:740px;background:var(--ind2);border-radius:40px;padding:13px;box-shadow:0 20px 60px rgba(0,0,0,.5);position:relative;}
+  .screen{width:100%;height:100%;background:var(--bg);border-radius:28px;overflow:hidden;position:relative;}
+  .scrollable{height:100%;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+  .scrollable::-webkit-scrollbar{width:0;}
+  button{cursor:pointer;border:none;font-size:16px;}
+  .btn{width:100%;background:var(--ind);color:#fff;border-radius:12px;padding:14px;font-weight:600;}
+  .btn:active{transform:scale(.99);}
+  .topbar{background:var(--ind);color:#fff;padding:16px 18px;display:flex;align-items:center;gap:12px;}
+  .topbar .ti{font-size:20px;}
+  .banner{background:#FFF3CD;color:#7A5C00;font-size:10px;text-align:center;padding:5px;}
+  .card{background:#fff;border-radius:14px;padding:14px;margin-bottom:10px;}
+  .row{display:flex;justify-content:space-between;font-size:13px;padding:4px 0;}
+  .row .k{color:var(--mut);} .row .v{color:var(--txt);font-weight:600;}
+  .field{background:var(--bg);border:1px solid #e2e6f0;border-radius:10px;padding:12px;font-size:15px;width:100%;margin:6px 0 14px;color:var(--txt);}
+  .label{font-size:12px;color:var(--mut);}
+  .nav{position:absolute;bottom:0;left:0;right:0;background:#fff;border-top:.5px solid #e8eaf2;display:flex;justify-content:space-around;padding:8px 0 12px;}
+  .nav div{flex:1;text-align:center;color:var(--mut);font-size:10px;cursor:pointer;}
+  .nav div.on{color:var(--ind);} .nav .ti{font-size:21px;display:block;}
+  .quick{display:flex;gap:6px;margin:6px 0 16px;}
+  .quick>div{flex:1;text-align:center;cursor:pointer;}
+  .qic{width:50px;height:50px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;margin:0 auto;color:var(--ind);}
+  .qic .ti{font-size:22px;}
+  .txn{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:.5px solid #eef0f5;}
+  .av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;}
+  .pindots{display:flex;justify-content:center;gap:12px;margin:24px 0;}
+  .pindot{width:16px;height:16px;border-radius:50%;border:2px solid #fff;}
+  .keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;padding:0 40px;}
+  .key{background:rgba(255,255,255,.12);color:#fff;border-radius:50%;aspect-ratio:1;font-size:24px;display:flex;align-items:center;justify-content:center;}
+  .modal{position:absolute;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;padding:24px;}
+  .toast{position:absolute;left:16px;right:16px;bottom:80px;background:#1A1D29;color:#fff;font-size:12px;padding:12px;border-radius:12px;text-align:center;}
+  .pill{display:inline-block;font-size:11px;padding:3px 10px;border-radius:20px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hint">NovaBank • Demo only — not for real financial transactions</div>
+  <div class="phone"><div class="screen" id="screen"></div></div>
+</div>
+<script>
+var IND='#1B2A6B',TEAL='#00C2A8',DANGER='#E5484D',MUT='#6B7280';
+var S={
+  pin:'',pinTarget:'', tab:'home', hide:false,
+  user:{name:'Somchai Demo',email:'somchai@novabank.local',phone:'081-000-0001',pinSet:true,bio:true},
+  accounts:[
+    {id:'a1',name:'Savings Account',type:'SAVINGS',no:'4821093777',bal:2500.00},
+    {id:'a2',name:'Current Account',type:'CURRENT',no:'7720451893',bal:15000.00}
+  ],
+  txns:[
+    {t:'Money received',d:'28 Jun 2026 09:12',a:1000,dir:'CREDIT'},
+    {t:'Coffee split',d:'27 Jun 2026 18:40',a:250,dir:'DEBIT'},
+    {t:'Salary',d:'25 Jun 2026 08:00',a:15000,dir:'CREDIT'}
+  ],
+  favorites:[
+    {name:'Malee',no:'9876543210',bank:'NovaBank'},
+    {name:'Mom PromptPay',no:'082-000-0099',bank:'PromptPay'}
+  ],
+  notifications:[
+    {t:'Welcome to NovaBank',b:'Demo system. Do not use for real transactions.',read:false},
+    {t:'Money received',b:'You received THB 1,000.00',read:false},
+    {t:'Salary credited',b:'THB 15,000.00 deposited',read:true}
+  ]
+};
+var el=document.getElementById('screen');
+function money(n){return 'THB '+Number(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});}
+function total(){return S.accounts.reduce(function(s,a){return s+a.bal;},0);}
+function toast(msg){var t=document.createElement('div');t.className='toast';t.textContent=msg;el.appendChild(t);setTimeout(function(){t.remove();},1900);}
+
+function login(){
+  el.innerHTML='<div style="background:'+IND+';height:100%;padding:30px 22px;color:#fff;display:flex;flex-direction:column;">'+
+    '<div style="margin-top:54px;text-align:center;"><i class="ti ti-hexagon" style="color:'+TEAL+';font-size:46px;"></i>'+
+    '<div style="font-size:28px;font-weight:600;margin-top:6px;">NovaBank</div>'+
+    '<div style="color:#cdd3f0;font-size:13px;margin-top:4px;">Smart banking, reimagined</div></div>'+
+    '<div style="background:#fff;border-radius:18px;padding:18px;margin-top:40px;">'+
+      '<div class="label">Email</div><div class="field">somchai@novabank.local</div>'+
+      '<div class="label">Password</div><div class="field" style="letter-spacing:3px;">............</div>'+
+      '<button class="btn" onclick="afterLogin()">Login</button>'+
+      '<div style="text-align:center;margin-top:12px;color:'+MUT+';font-size:13px;"><i class="ti ti-fingerprint"></i> Biometric login</div>'+
+      '<div style="text-align:center;margin-top:10px;color:'+IND+';font-size:13px;">Create new account</div>'+
+    '</div>'+
+    '<div style="margin-top:auto;text-align:center;color:#ffffff70;font-size:10px;">Demo only — not for real financial transactions</div></div>';
+}
+function afterLogin(){ S.user.pinSet?pinScreen('verify'):pinScreen('set'); }
+
+function pinScreen(mode){
+  S.pin='';S.pinTarget=mode;
+  var title=mode==='set'?'Set a 6-digit PIN':'Enter your PIN';
+  el.innerHTML='<div style="background:'+IND+';height:100%;color:#fff;display:flex;flex-direction:column;align-items:center;padding-top:64px;">'+
+    '<i class="ti ti-lock" style="font-size:38px;"></i>'+
+    '<div style="font-size:19px;font-weight:500;margin-top:14px;">'+title+'</div>'+
+    '<div class="pindots" id="dots"></div>'+
+    '<div style="flex:1;"></div>'+
+    '<div class="keypad" style="padding-bottom:30px;">'+
+      [1,2,3,4,5,6,7,8,9].map(function(n){return '<div class="key" onclick="pinKey('+n+')">'+n+'</div>';}).join('')+
+      '<div class="key" style="background:none;" onclick="pinBio()"><i class="ti ti-fingerprint"></i></div>'+
+      '<div class="key" onclick="pinKey(0)">0</div>'+
+      '<div class="key" style="background:none;" onclick="pinDel()"><i class="ti ti-backspace"></i></div>'+
+    '</div></div>';
+  drawDots();
+}
+function drawDots(){var d=document.getElementById('dots');if(!d)return;d.innerHTML='';for(var i=0;i<6;i++){var x=document.createElement('div');x.className='pindot';if(i<S.pin.length)x.style.background=TEAL;d.appendChild(x);}}
+function pinKey(n){if(S.pin.length>=6)return;S.pin+=n;drawDots();if(S.pin.length===6)setTimeout(function(){S.user.pinSet=true;home();},200);}
+function pinDel(){S.pin=S.pin.slice(0,-1);drawDots();}
+function pinBio(){if(S.pinTarget==='verify'){toast('Biometric OK');setTimeout(home,500);}}
+
+function shell(body){
+  var tabs=[['home','ti-home','Home'],['cards','ti-credit-card','Accounts'],['activity','ti-history','Activity'],['profile','ti-user','Profile']];
+  el.innerHTML='<div class="scrollable" style="padding-bottom:70px;">'+body+'</div>'+
+    '<div class="nav">'+tabs.map(function(t){return '<div class="'+(S.tab===t[0]?'on':'')+'" onclick="go(\''+t[0]+'\')"><i class="ti '+t[1]+'"></i>'+t[2]+'</div>';}).join('')+'</div>';
+}
+function go(t){S.tab=t;({home:home,cards:cards,activity:activity,profile:profile}[t])();}
+
+function home(){
+  S.tab='home';
+  var bal=S.hide?'THB ......':money(total());
+  var accs=S.accounts.map(function(a){return '<div class="card" style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">'+
+    '<div class="av" style="background:'+TEAL+';"><i class="ti ti-wallet"></i></div>'+
+    '<div style="flex:1;"><div style="font-size:14px;">'+a.name+'</div><div style="font-size:11px;color:'+MUT+';">'+a.type+' • '+a.no+'</div></div>'+
+    '<div style="font-weight:600;font-size:14px;">'+(S.hide?'....':money(a.bal))+'</div></div>';}).join('');
+  var quick=[['ti-send','Transfer','transfer'],['ti-qrcode','Scan QR','qrScan'],['ti-receipt','Pay Bill','bill'],['ti-device-mobile','Top-up','topup'],
+             ['ti-qrcode','Receive','qrReceive'],['ti-star','Favorites','favs'],['ti-bell','Alerts','notifications'],['ti-shield','Security','security']];
+  var q=quick.map(function(x){return '<div onclick="'+x[2]+'()"><div class="qic"><i class="ti '+x[0]+'"></i></div><div style="font-size:10px;margin-top:5px;">'+x[1]+'</div></div>';});
+  var qrows='<div class="quick">'+q.slice(0,4).join('')+'</div><div class="quick">'+q.slice(4).join('')+'</div>';
+  var tx=S.txns.slice(0,4).map(txnRow).join('');
+  shell('<div class="topbar" style="justify-content:space-between;"><div style="font-size:15px;">Hi, '+S.user.name.split(' ')[0]+'</div>'+
+    '<div style="display:flex;gap:14px;"><i class="ti ti-bell" onclick="notifications()"></i><i class="ti ti-logout" onclick="login()"></i></div></div>'+
+    '<div class="banner">Demo only — not for real financial transactions</div>'+
+    '<div style="padding:14px 16px;"><div style="background:'+IND+';border-radius:16px;padding:18px;color:#fff;">'+
+      '<div style="display:flex;justify-content:space-between;align-items:center;"><span style="color:#ffffffb0;font-size:13px;">Total balance</span>'+
+      '<i class="ti '+(S.hide?'ti-eye-off':'ti-eye')+'" style="color:#ffffffb0;cursor:pointer;" onclick="S.hide=!S.hide;home()"></i></div>'+
+      '<div style="font-size:30px;font-weight:600;margin-top:6px;">'+bal+'</div></div>'+
+      '<div style="margin:14px 0;">'+accs+'</div>'+qrows+
+      '<div style="font-size:15px;font-weight:600;margin-bottom:4px;">Recent transactions</div>'+tx+'</div>');
+}
+function txnRow(x){var c=x.dir==='CREDIT';return '<div class="txn"><div class="av" style="background:'+(c?TEAL:DANGER)+';"><i class="ti '+(c?'ti-arrow-down-left':'ti-arrow-up-right')+'"></i></div>'+
+  '<div style="flex:1;"><div style="font-size:13px;">'+x.t+'</div><div style="font-size:11px;color:'+MUT+';">'+x.d+'</div></div>'+
+  '<div style="font-weight:600;font-size:13px;color:'+(c?'#0F6E56':DANGER)+';">'+(c?'+':'-')+money(x.a)+'</div></div>';}
+
+function cards(){
+  S.tab='cards';
+  var body='<div class="topbar"><span style="font-size:16px;">My Accounts</span></div><div style="padding:16px;">'+
+    S.accounts.map(function(a){return '<div style="background:'+IND+';color:#fff;border-radius:16px;padding:18px;margin-bottom:12px;">'+
+      '<div style="font-size:13px;color:#ffffffb0;">'+a.type+'</div>'+
+      '<div style="font-size:15px;margin:2px 0 14px;">'+a.name+'</div>'+
+      '<div style="font-size:26px;font-weight:600;">'+money(a.bal)+'</div>'+
+      '<div style="font-size:13px;color:#ffffffb0;margin-top:8px;letter-spacing:1px;">'+a.no+'</div></div>';}).join('')+'</div>';
+  shell(body);
+}
+function activity(){
+  S.tab='activity';
+  shell('<div class="topbar"><span style="font-size:16px;">Transaction history</span></div><div style="padding:16px;">'+
+    S.txns.map(txnRow).join('')+'</div>');
+}
+
+function transfer(){
+  var opts=S.accounts.map(function(a){return '<option value="'+a.id+'">'+a.name+' • '+money(a.bal)+'</option>';}).join('');
+  var chans=['OWN','OTHER','PROMPTPAY'];
+  el.innerHTML='<div class="scrollable"><div class="topbar"><i class="ti ti-arrow-left" onclick="home()"></i><span style="font-size:16px;">Transfer</span></div>'+
+    '<div style="padding:18px 16px;"><div class="label">From account</div><select class="field" id="from">'+opts+'</select>'+
+    '<div class="label">Channel</div><div class="quick" id="chan" style="margin:6px 0 14px;">'+
+      chans.map(function(c,i){return '<div data-c="'+c+'" onclick="setChan(\''+c+'\')" style="padding:9px;border-radius:10px;font-size:12px;border:1px solid '+(i===1?IND:'#dfe3ee')+';background:'+(i===1?IND:'#fff')+';color:'+(i===1?'#fff':'#1A1D29')+';">'+c+'</div>';}).join('')+'</div>'+
+    '<div class="label">Destination account / PromptPay</div><input class="field" id="to" value="9876543210">'+
+    '<div class="label">Amount (THB)</div><input class="field" id="amt" type="number" value="500" style="font-size:20px;">'+
+    '<div id="err" style="color:'+DANGER+';font-size:12px;min-height:16px;"></div>'+
+    '<button class="btn" onclick="doTransfer()">Continue</button></div></div>';
+  S._chan='OTHER';
+}
+function setChan(c){S._chan=c;Array.prototype.forEach.call(document.querySelectorAll('#chan [data-c]'),function(n){var on=n.getAttribute('data-c')===c;n.style.background=on?IND:'#fff';n.style.color=on?'#fff':'#1A1D29';n.style.border='1px solid '+(on?IND:'#dfe3ee');});}
+function doTransfer(){
+  var from=S.accounts.filter(function(a){return a.id===document.getElementById('from').value;})[0];
+  var to=document.getElementById('to').value.trim(),amt=parseFloat(document.getElementById('amt').value),err=document.getElementById('err');
+  if(!to){err.textContent='Enter destination account';return;}
+  if(!amt||amt<=0){err.textContent='Enter a valid amount';return;}
+  if(amt>200000){err.textContent='Amount exceeds demo limit (200,000)';return;}
+  if(amt>from.bal){err.textContent='Insufficient balance';return;}
+  var m=document.createElement('div');m.className='modal';
+  m.innerHTML='<div class="card" style="width:100%;"><div style="font-size:16px;font-weight:600;margin-bottom:10px;">Confirm transfer</div>'+
+    rowH('From',from.name)+rowH('To',to)+rowH('Channel',S._chan)+rowH('Amount',money(amt))+
+    '<div style="font-size:10px;color:'+MUT+';margin:8px 0 12px;">Demo only — not for real financial transactions</div>'+
+    '<div style="display:flex;gap:8px;"><button onclick="this.closest(\'.modal\').remove()" style="flex:1;background:#fff;border:1px solid #dfe3ee;border-radius:10px;padding:11px;">Cancel</button>'+
+    '<button class="btn" style="flex:1;" onclick="finishTransfer(\''+from.id+'\',\''+to+'\','+amt+')">Confirm</button></div></div>';
+  el.appendChild(m);
+}
+function rowH(k,v){return '<div class="row"><span class="k">'+k+'</span><span class="v">'+v+'</span></div>';}
+function finishTransfer(fid,to,amt){
+  var from=S.accounts.filter(function(a){return a.id===fid;})[0];from.bal-=amt;
+  S.txns.unshift({t:'Transfer to '+to,d:'28 Jun 2026 '+new Date().toLocaleTimeString('en-GB').slice(0,5),a:amt,dir:'DEBIT'});
+  S.notifications.unshift({t:'Transfer successful',b:'You sent '+money(amt)+' to '+to,read:false});
+  var ref='TXN'+Date.now().toString(36).toUpperCase().slice(-7);
+  el.innerHTML='<div style="height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center;">'+
+    '<div style="width:78px;height:78px;border-radius:50%;background:'+TEAL+';display:flex;align-items:center;justify-content:center;"><i class="ti ti-check" style="color:#fff;font-size:42px;"></i></div>'+
+    '<div style="font-size:20px;font-weight:600;margin-top:14px;">Transfer successful</div>'+
+    '<div style="font-size:30px;font-weight:600;color:'+IND+';margin:8px 0;">'+money(amt)+'</div>'+
+    '<div class="card" style="width:100%;">'+rowH('Reference',ref)+rowH('To',to)+rowH('Balance',money(from.bal))+'</div>'+
+    '<button class="btn" style="margin-top:20px;" onclick="home()">Done</button></div>';
+}
+
+function simplePay(title,icon,fields,okMsg){
+  el.innerHTML='<div class="scrollable"><div class="topbar"><i class="ti ti-arrow-left" onclick="home()"></i><span style="font-size:16px;">'+title+'</span></div>'+
+    '<div style="padding:18px 16px;text-align:center;"><i class="ti '+icon+'" style="font-size:40px;color:'+IND+';"></i>'+
+    fields+'<button class="btn" style="margin-top:8px;" onclick="paySuccess(\''+okMsg+'\')">Confirm</button>'+
+    '<div style="font-size:11px;color:'+MUT+';margin-top:12px;">Placeholder feature — no real transaction.</div></div></div>';
+}
+function bill(){simplePay('Pay Bill','ti-receipt','<div class="label" style="text-align:left;margin-top:14px;">Biller</div><select class="field"><option>Metropolitan Electricity</option><option>Provincial Waterworks</option></select><div class="label" style="text-align:left;">Ref number</div><input class="field" value="1234567890"><div class="label" style="text-align:left;">Amount</div><input class="field" type="number" value="850">','Bill paid (demo)');}
+function topup(){simplePay('Mobile Top-up','ti-device-mobile','<div class="label" style="text-align:left;margin-top:14px;">Phone number</div><input class="field" value="081-000-0001"><div class="label" style="text-align:left;">Amount</div><select class="field"><option>50</option><option>100</option><option>300</option></select>','Top-up complete (demo)');}
+function paySuccess(msg){toast(msg);setTimeout(home,1000);}
+
+function qrReceive(){
+  el.innerHTML='<div class="scrollable"><div class="topbar"><i class="ti ti-arrow-left" onclick="home()"></i><span style="font-size:16px;">Receive money</span></div>'+
+    '<div style="padding:30px 16px;text-align:center;">'+
+    '<div style="background:#fff;display:inline-block;padding:20px;border-radius:16px;"><i class="ti ti-qrcode" style="font-size:150px;color:'+IND+';"></i></div>'+
+    '<div style="margin-top:16px;font-size:15px;font-weight:600;">'+S.user.name+'</div>'+
+    '<div style="color:'+MUT+';font-size:13px;">'+S.accounts[0].no+'</div>'+
+    '<div style="font-size:11px;color:'+MUT+';margin-top:14px;">Mock QR — not a real PromptPay payload.</div></div></div>';
+}
+function qrScan(){
+  el.innerHTML='<div class="scrollable"><div class="topbar"><i class="ti ti-arrow-left" onclick="home()"></i><span style="font-size:16px;">Scan QR</span></div>'+
+    '<div style="padding:30px 16px;text-align:center;"><div style="width:200px;height:200px;border:3px dashed '+TEAL+';border-radius:20px;margin:0 auto;display:flex;align-items:center;justify-content:center;color:'+MUT+';"><i class="ti ti-scan" style="font-size:60px;"></i></div>'+
+    '<button class="btn" style="margin-top:24px;" onclick="toast(\'Scanned 9876543210\');setTimeout(transfer,900)">Simulate scan</button>'+
+    '<div style="font-size:11px;color:'+MUT+';margin-top:12px;">Placeholder scanner.</div></div></div>';
+}
+function favs(){
+  el.innerHTML='<div class="scrollable"><div class="topbar"><i class="ti ti-arrow-left" onclick="home()"></i><span style="font-size:16px;">Favorites</span></div>'+
+    '<div style="padding:16px;">'+S.favorites.map(function(f){return '<div class="card" style="display:flex;align-items:center;gap:10px;" onclick="transfer()">'+
+      '<div class="av" style="background:'+IND+';"><i class="ti ti-user"></i></div><div style="flex:1;"><div style="font-size:14px;font-weight:600;">'+f.name+'</div>'+
+      '<div style="font-size:12px;color:'+MUT+';">'+f.bank+' • '+f.no+'</div></div><i class="ti ti-send" style="color:'+IND+';"></i></div>';}).join('')+'</div></div>';
+}
+function notifications(){
+  el.innerHTML='<div class="scrollable"><div class="topbar"><i class="ti ti-arrow-left" onclick="home()"></i><span style="font-size:16px;">Notifications</span></div>'+
+    '<div style="padding:16px;">'+S.notifications.map(function(n){return '<div class="card" style="display:flex;gap:10px;'+(n.read?'opacity:.6;':'')+'">'+
+      '<i class="ti ti-bell" style="font-size:20px;color:'+IND+';"></i><div style="flex:1;"><div style="font-size:14px;font-weight:600;">'+n.t+'</div>'+
+      '<div style="font-size:12px;color:'+MUT+';">'+n.b+'</div></div>'+(n.read?'':'<span class="pill" style="background:'+TEAL+';color:#fff;">new</span>')+'</div>';}).join('')+'</div></div>';
+  S.notifications.forEach(function(n){n.read=true;});
+}
+function security(){
+  el.innerHTML='<div class="scrollable"><div class="topbar"><i class="ti ti-arrow-left" onclick="home()"></i><span style="font-size:16px;">Security settings</span></div>'+
+    '<div style="padding:8px 0;">'+
+    secRow('ti-pin','Change PIN','6-digit PIN','onclick="pinScreen(\'set\')"')+
+    secRow('ti-fingerprint','Face ID / Fingerprint',(S.user.bio?'Enabled':'Disabled'),'onclick="S.user.bio=!S.user.bio;security()"')+
+    secRow('ti-device-mobile','Manage devices','1 device','')+
+    '<div style="padding:16px;font-size:11px;color:'+MUT+';">Demo only — not for real financial transactions.</div></div></div>';
+}
+function secRow(icon,t,sub,act){return '<div class="card" style="margin:0 16px 10px;display:flex;align-items:center;gap:12px;" '+act+'>'+
+  '<i class="ti '+icon+'" style="font-size:22px;color:'+IND+';"></i><div style="flex:1;"><div style="font-size:14px;">'+t+'</div>'+
+  '<div style="font-size:12px;color:'+MUT+';">'+sub+'</div></div><i class="ti ti-chevron-right" style="color:'+MUT+';"></i></div>';}
+
+function profile(){
+  S.tab='profile';
+  var init=S.user.name.split(' ').map(function(w){return w[0];}).join('').slice(0,2);
+  shell('<div class="topbar"><span style="font-size:16px;">Profile</span></div>'+
+    '<div style="padding:20px 16px;text-align:center;"><div style="width:80px;height:80px;border-radius:50%;background:'+IND+';color:#fff;display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:600;margin:0 auto;">'+init+'</div>'+
+    '<div style="font-size:18px;font-weight:600;margin-top:12px;">'+S.user.name+'</div>'+
+    '<div style="color:'+MUT+';font-size:13px;">'+S.user.email+'</div></div>'+
+    '<div style="padding:0 0 16px;">'+
+    secRow('ti-user','Personal info',S.user.phone,'')+
+    secRow('ti-shield','Security','PIN & biometric','onclick="security()"')+
+    secRow('ti-star','Favorites',S.favorites.length+' saved','onclick="favs()"')+
+    secRow('ti-bell','Notifications','','onclick="notifications()"')+
+    secRow('ti-logout','Logout','','onclick="login()"')+'</div>');
+}
+
+login();
+</script>
+</body>
+</html>

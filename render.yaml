@@ -1,0 +1,22 @@
+# PicoFin one-click deploy (Render Blueprint) - DEMO. Lend from own capital; no public deposits.
+databases:
+  - name: picofin-db
+    plan: free
+
+services:
+  - type: web
+    name: picofin-api
+    runtime: docker
+    plan: free
+    dockerfilePath: ./apps/pico-api/Dockerfile
+    dockerContext: ./apps/pico-api
+    preDeployCommand: "npx prisma migrate deploy && npm run seed"
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase: { name: picofin-db, property: connectionString }
+      - key: JWT_ACCESS_SECRET
+        generateValue: true
+      - key: JWT_ACCESS_TTL
+        value: 8h
+      - key: NODE_ENV
+        value: production

@@ -1,0 +1,28 @@
+# PicoFin docker-compose - DEMO. Pico Finance lending platform.
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: picofin-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: picofin
+      POSTGRES_PASSWORD: picofin_pw
+      POSTGRES_DB: picofin
+    ports: ["5432:5432"]
+    volumes: ["pgdata_pico:/var/lib/postgresql/data"]
+    healthcheck: { test: ["CMD-SHELL","pg_isready -U picofin"], interval: 5s, timeout: 5s, retries: 10 }
+
+  pico-api:
+    build: { context: ./apps/pico-api, dockerfile: Dockerfile }
+    container_name: picofin-api
+    restart: unless-stopped
+    depends_on: { postgres: { condition: service_healthy } }
+    environment:
+      DATABASE_URL: postgresql://picofin:picofin_pw@postgres:5432/picofin?schema=public
+      JWT_ACCESS_SECRET: change_me_dev_only
+      JWT_ACCESS_TTL: 8h
+      API_PORT: 3000
+    ports: ["3000:3000"]
+    command: sh -c "npx prisma migrate deploy && npm run seed && node dist/main.js"
+
+volumes: { pgdata_pico: {} }
