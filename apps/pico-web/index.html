@@ -126,6 +126,7 @@ async function openLoan(id){try{const l=await api('/loans/'+id);
     '<div class="label" style="color:#16557B;font-weight:600">ชำระแล้ว '+B((l.installments||[]).reduce(function(s,i){return s+(i.paidAmount||0);},0))+' ('+(l.installments||[]).filter(function(i){return i.status==='PAID';}).length+'/'+l.termMonths+' งวด) • คงเหลือ '+B((l.summary?l.summary.total:0)-(l.installments||[]).reduce(function(s,i){return s+(i.paidAmount||0);},0))+'</div>'+
     '<div class="label">งวดถัดไป: '+(function(){var n=(l.installments||[]).find(function(i){return i.status!=='PAID';});return n?('งวด '+n.no+' ครบกำหนด '+new Date(n.dueDate).toLocaleDateString('th-TH')+' • '+B(n.total-(n.paidAmount||0))):'ชำระครบทุกงวดแล้ว';})()+'</div>'+
     '<button class="ghost" style="margin-top:8px;margin-bottom:4px" onclick="printLoan(\''+l.id+'\')">🖨️ พิมพ์สัญญา/ตารางผ่อน</button>'+
+    '<button class="ghost" style="margin:4px 0 8px" onclick="loanContract(\''+l.id+'\')">📄 สัญญากู้ (สำหรับเซ็น)</button>'+
     '<div style="margin:10px 0;"><div class="label">บันทึกรับชำระ (บาท)</div><input id="payamt" type="number" placeholder="เช่น 1066.19">'+
     '<button class="btn" style="margin-top:4px;" onclick="pay(\''+l.id+'\')">รับชำระ + ตัดงวด</button><div class="err" id="payerr"></div></div>'+
     '<table><tr><th>งวด</th><th>ครบกำหนด</th><th>เงินต้น</th><th>ดอกเบี้ย</th><th>รวม</th><th>สถานะ</th></tr>'+rows+'</table></div>';
@@ -160,6 +161,68 @@ async function customer(tab){shellCu(tab,'');var body=document.getElementById('b
 async function rImg(id){return new Promise(function(res){var el=document.getElementById(id);var f=el&&el.files?el.files[0]:null;if(!f){res(null);return;}var r=new FileReader();r.onload=function(){var img=new Image();img.onload=function(){var c=document.createElement('canvas');var m=900,w=img.width,h=img.height;if(w>h&&w>m){h=h*m/w;w=m;}else if(h>m){w=w*m/h;h=m;}c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);res(c.toDataURL('image/jpeg',0.6));};img.src=r.result;};r.readAsDataURL(f);});}
 async function viewDoc(id){try{var l=await api('/applications');var x=(l||[]).find(function(a){return a.id===id;});if(!x){alert('ไม่พบข้อมูล');return;}var im=function(u){return u?'<img src="'+u+'" style="max-width:100%;border:1px solid #ddd;border-radius:8px;margin:6px 0">':'<div style="color:#888;margin:6px 0">— ไม่มีรูป —</div>';};var html='<div style="position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:flex-start;justify-content:center;overflow:auto;z-index:99" onclick="this.remove()"><div style="background:#fff;max-width:520px;width:92%;margin:24px;padding:18px;border-radius:12px" onclick="event.stopPropagation()"><h3>เอกสารผู้กู้</h3><div style="margin-bottom:8px">อาชีพ: '+(x.occupation||'-')+' • รายได้/เดือน: '+(x.monthlyIncome?('฿'+x.monthlyIncome):'-')+'</div><div class="label">บัตรประชาชนด้านหน้า</div>'+im(x.idCardFront)+'<div class="label">บัตรประชาชนด้านหลัง</div>'+im(x.idCardBack)+'<div class="label">รูปถ่ายคู่บัตรประชาชน</div>'+im(x.selfieWithId)+'<div class="label">สลิปเงินเดือน</div>'+im(x.salarySlip)+'<div style="margin:6px 0">ผู้ค้ำประกัน: '+(x.guarantorName||'-')+' • '+(x.guarantorPhone||'-')+'</div><div class="label">บัตรประชาชนผู้ค้ำประกัน</div>'+im(x.guarantorIdCard)+'<button class="btn" style="margin-top:10px" onclick="this.parentNode.parentNode.remove()">ปิด</button></div></div>';document.body.insertAdjacentHTML('beforeend',html);}catch(e){alert(e.message||e);}}
 async function printLoan(id){try{var ls=await api('/loans');var l=(ls||[]).find(function(a){return a.id===id;});if(!l){alert('ไม่พบสัญญา');return;}var paid=(l.installments||[]).reduce(function(s,i){return s+(i.paidAmount||0);},0);var total=l.summary?l.summary.total:0;var rows=(l.installments||[]).map(function(i){return '<tr><td>'+i.no+'</td><td>'+new Date(i.dueDate).toLocaleDateString('th-TH')+'</td><td style="text-align:right">'+B(i.principal)+'</td><td style="text-align:right">'+B(i.interest)+'</td><td style="text-align:right">'+B(i.total)+'</td><td>'+tS(i.status)+'</td></tr>';}).join('');var bw=(l.borrower&&l.borrower.fullName)||'-';var html='<html><head><meta charset="utf-8"><title>สัญญา '+l.contractNo+'</title><style>body{font-family:Tahoma,sans-serif;padding:24px;color:#16202A}h2{margin:0 0 4px}table{width:100%;border-collapse:collapse;margin-top:12px;font-size:13px}th,td{border:1px solid #ccc;padding:6px 8px}th{background:#f3f6f9;text-align:left}.muted{color:#6b7280}.box{margin:10px 0;padding:10px;border:1px solid #e6ebf0;border-radius:8px}</style></head><body><h2>พิโกไฟแนนซ์ บุรีรัมย์</h2><div class="muted">สัญญาสินเชื่อ เลขที่ '+l.contractNo+'</div><div class="box">ผู้กู้: <b>'+bw+'</b><br>เงินต้น: '+B(l.principal)+' • ดอกเบี้ย '+l.annualRatePct+'%/ปี • '+l.termMonths+' งวด<br>รวมต้องชำระ: '+B(total)+' • ชำระแล้ว: '+B(paid)+' • คงเหลือ: '+B(total-paid)+'</div><table><thead><tr><th>งวด</th><th>ครบกำหนด</th><th>เงินต้น</th><th>ดอกเบี้ย</th><th>รวม</th><th>สถานะ</th></tr></thead><tbody>'+rows+'</tbody></table><p class="muted" style="margin-top:18px;font-size:12px">ออกโดยระบบ PicoFin • พิมพ์เมื่อ '+new Date().toLocaleString('th-TH')+'</p></body></html>';var w=window.open('','_blank');w.document.write(html);w.document.close();w.focus();setTimeout(function(){w.print();},400);}catch(e){alert(e.message||e);}}
+async function loanContract(id){try{
+var ls=await api('/loans');var l=(ls||[]).find(function(a){return a.id===id;});if(!l){alert('ไม่พบสัญญา');return;}
+var apps=[];try{apps=await api('/applications');}catch(e){}
+var app=(apps||[]).find(function(a){return a.id===l.applicationId;})||{};
+var dash={};try{dash=await api('/dashboard');}catch(e){}
+var op=dash.operator||{};var b=l.borrower||{};
+var rules=op.picoType==='PICO_PLUS'?{max:100000,rate:28,label:'PICO+ (พิโกพลัส)'}:{max:50000,rate:36,label:'PICO (พิโกไฟแนนซ์)'};
+var total=l.summary?l.summary.total:0;
+var perInst=(l.installments&&l.installments[0])?l.installments[0].total:0;
+var firstDue=(l.installments&&l.installments[0])?new Date(l.installments[0].dueDate).toLocaleDateString('th-TH'):'-';
+var lastDue=(l.installments&&l.installments.length)?new Date(l.installments[l.installments.length-1].dueDate).toLocaleDateString('th-TH'):'-';
+var sumPrin=(l.installments||[]).reduce(function(s,i){return s+i.principal;},0);
+var c=[];function ck(k,ok,v){c.push({k:k,ok:ok,v:v});}
+ck('ชื่อ-นามสกุลผู้กู้',!!(b.fullName&&b.fullName.length>=3),b.fullName||'-');
+ck('เลขบัตรประชาชน 13 หลัก',/^[0-9]{13}$/.test(String(b.nationalId||'').replace(/[^0-9]/g,'')),b.nationalId||'-');
+ck('ที่อยู่ผู้กู้',!!b.address,b.address||'(ยังไม่ระบุ)');
+ck('เบอร์โทรผู้กู้',!!b.phone,b.phone||'(ยังไม่ระบุ)');
+ck('จังหวัดผู้กู้ตรงกับผู้ประกอบการ',!!(b.province&&op.province&&b.province===op.province),(b.province||'-')+' / '+(op.province||'-'));
+ck('แนบบัตรประชาชนด้านหน้า',!!app.idCardFront,app.idCardFront?'แนบแล้ว':'ยังไม่แนบ');
+ck('แนบบัตรประชาชนด้านหลัง',!!app.idCardBack,app.idCardBack?'แนบแล้ว':'ยังไม่แนบ');
+ck('รูปถ่ายคู่บัตรประชาชน',!!app.selfieWithId,app.selfieWithId?'แนบแล้ว':'ยังไม่แนบ');
+ck('ผู้ค้ำประกัน (ชื่อ+เบอร์)',!!(app.guarantorName&&app.guarantorPhone),(app.guarantorName||'(ไม่มี)')+' '+(app.guarantorPhone||''));
+ck('วงเงินไม่เกินเพดาน '+rules.label+' (ไม่เกิน '+rules.max.toLocaleString()+')',l.principal<=rules.max,B(l.principal));
+ck('อัตราดอกเบี้ยไม่เกินเพดาน (ไม่เกิน '+rules.rate+'%/ปี)',l.annualRatePct<=rules.rate,l.annualRatePct+'%/ปี');
+ck('ผลรวมเงินต้นในตารางผ่อน = เงินกู้',Math.abs(sumPrin-l.principal)<1,B(sumPrin)+' / '+B(l.principal));
+ck('จำนวนงวดถูกต้อง',(l.installments||[]).length===l.termMonths,(l.installments||[]).length+'/'+l.termMonths+' งวด');
+var allOk=c.every(function(x){return x.ok;});
+var checkRows=c.map(function(x){return '<tr><td style="width:22px">'+(x.ok?'✅':'❌')+'</td><td>'+x.k+'</td><td class="muted">'+x.v+'</td></tr>';}).join('');
+var schedRows=(l.installments||[]).map(function(i){return '<tr><td>'+i.no+'</td><td>'+new Date(i.dueDate).toLocaleDateString('th-TH')+'</td><td class="r">'+B(i.principal)+'</td><td class="r">'+B(i.interest)+'</td><td class="r">'+B(i.total)+'</td></tr>';}).join('');
+var today=new Date().toLocaleDateString('th-TH');
+var gClause=app.guarantorName?('<p><b>ข้อ 7. ผู้ค้ำประกัน</b> '+app.guarantorName+' โทร '+(app.guarantorPhone||'-')+' ตกลงเข้าผูกพันตนเป็นผู้ค้ำประกันการชำระหนี้ตามสัญญานี้ และยินยอมรับผิดอย่างลูกหนี้ร่วมจนกว่าผู้กู้จะชำระหนี้ครบถ้วน</p>'):'';
+var html='<html><head><meta charset="utf-8"><title>สัญญากู้ยืมเงิน '+(l.contractNo||'')+'</title><style>'
++'body{font-family:Tahoma,sans-serif;color:#1a1a1a;max-width:780px;margin:0 auto;padding:28px;line-height:1.55;font-size:14px}'
++'h1{text-align:center;font-size:20px;margin:0 0 2px}h2{font-size:15px;margin:18px 0 6px;border-bottom:1px solid #ccc;padding-bottom:3px}'
++'.center{text-align:center}.muted{color:#666}.r{text-align:right}'
++'table{width:100%;border-collapse:collapse;margin:8px 0;font-size:13px}th,td{border:1px solid #bbb;padding:5px 7px}th{background:#f2f5f8;text-align:left}'
++'.chk{border:2px solid '+(allOk?'#1a8f4c':'#c0392b')+';border-radius:8px;padding:10px 14px;margin-bottom:18px;background:'+(allOk?'#eafaf0':'#fdecea')+'}'
++'.chk td{border:none;padding:2px 6px;font-size:12px}'
++'.sign{display:flex;justify-content:space-between;margin-top:30px;gap:24px}.sign div{flex:1;text-align:center}'
++'.line{border-top:1px dotted #333;margin-top:44px;padding-top:4px}@media print{.noprint{display:none}}'
++'</style></head><body>'
++'<div class="chk noprint"><b>'+(allOk?'✅ ตรวจความถูกต้องอัตโนมัติ: ผ่านครบทุกข้อ — พร้อมพิมพ์ให้ลูกค้าเซ็น':'⚠️ ตรวจพบข้อมูลไม่ครบ/ไม่ถูกต้อง โปรดแก้ไขก่อนให้ลูกค้าเซ็น')+'</b><table>'+checkRows+'</table><div class="muted" style="font-size:11px">* แถบตรวจสอบนี้แสดงเฉพาะบนหน้าจอ ไม่ถูกพิมพ์ลงในสัญญา</div></div>'
++'<h1>สัญญากู้ยืมเงิน</h1>'
++'<div class="center muted">เลขที่สัญญา '+(l.contractNo||'-')+' • ทำที่ จังหวัด'+(op.province||'-')+' • วันที่ '+today+'</div>'
++'<p>สัญญานี้ทำขึ้นระหว่าง <b>'+(op.name||'ผู้ให้กู้')+'</b> ผู้ประกอบธุรกิจสินเชื่อรายย่อยระดับจังหวัดภายใต้การกำกับ ประเภท '+rules.label+' ซึ่งต่อไปนี้เรียกว่า "ผู้ให้กู้" ฝ่ายหนึ่ง กับ <b>'+(b.fullName||'-')+'</b> เลขประจำตัวประชาชน '+(b.nationalId||'-')+' อยู่บ้านเลขที่ '+(b.address||'-')+' โทร '+(b.phone||'-')+' ซึ่งต่อไปนี้เรียกว่า "ผู้กู้" อีกฝ่ายหนึ่ง ทั้งสองฝ่ายตกลงทำสัญญากันโดยมีข้อความดังต่อไปนี้</p>'
++'<p><b>ข้อ 1. จำนวนเงินกู้</b> ผู้ให้กู้ตกลงให้กู้ และผู้กู้ตกลงกู้ยืมเงินจำนวน '+B(l.principal)+' โดยผู้กู้ได้รับเงินครบถ้วนแล้วในวันทำสัญญา เพื่อวัตถุประสงค์ '+(app.purpose||'ใช้จ่ายส่วนบุคคล')+'</p>'
++'<p><b>ข้อ 2. อัตราดอกเบี้ย</b> ผู้กู้ตกลงชำระดอกเบี้ยอัตรา '+l.annualRatePct+'% ต่อปี แบบลดต้นลดดอก ซึ่งไม่เกินเพดานที่กฎหมายว่าด้วยสินเชื่อรายย่อยระดับจังหวัดกำหนด ('+rules.label+' ไม่เกิน '+rules.rate+'%/ปี)</p>'
++'<p><b>ข้อ 3. การชำระคืน</b> ผู้กู้ตกลงผ่อนชำระเป็นงวดรายเดือน รวม '+l.termMonths+' งวด งวดละประมาณ '+B(perInst)+' ตามวันที่กำหนดในตารางแนบท้าย เริ่มงวดแรก '+firstDue+' งวดสุดท้าย '+lastDue+' รวมต้องชำระทั้งสิ้น '+B(total)+'</p>'
++'<p><b>ข้อ 4. การผิดนัดชำระ</b> หากผู้กู้ผิดนัดงวดใด ผู้ให้กู้มีสิทธิคิดดอกเบี้ยผิดนัดเพิ่มตามที่กฎหมายกำหนด และมีสิทธิเรียกให้ชำระหนี้ทั้งหมดคืนทันที</p>'
++'<p><b>ข้อ 5. การชำระก่อนกำหนด</b> ผู้กู้มีสิทธิชำระคืนทั้งหมดหรือบางส่วนก่อนกำหนดได้ โดยคิดดอกเบี้ยตามจริงถึงวันชำระ</p>'
++'<p><b>ข้อ 6. ความถูกต้องของข้อมูล</b> ผู้กู้รับรองว่าข้อมูลและเอกสารที่ให้ไว้ รวมถึงสำเนาบัตรประชาชนและภาพถ่าย เป็นความจริงทุกประการ</p>'
++gClause
++'<p><b>ข้อ 8. ข้อมูลส่วนบุคคล (PDPA)</b> ผู้กู้ยินยอมให้ผู้ให้กู้เก็บรวบรวม ใช้ และเปิดเผยข้อมูลส่วนบุคคลเท่าที่จำเป็นต่อการพิจารณาและบริหารสินเชื่อ ตาม พ.ร.บ.คุ้มครองข้อมูลส่วนบุคคล พ.ศ. 2562</p>'
++'<p><b>ข้อ 9. กฎหมายที่ใช้บังคับ</b> สัญญานี้อยู่ภายใต้กฎหมายไทย หากมีข้อพิพาทให้อยู่ในเขตอำนาจศาลจังหวัด'+(op.province||'-')+'</p>'
++'<p class="muted">ผู้กู้ได้อ่านและเข้าใจข้อความในสัญญานี้โดยตลอดแล้ว เห็นว่าถูกต้องตรงตามเจตนา จึงลงลายมือชื่อไว้เป็นสำคัญต่อหน้าพยาน</p>'
++'<div class="sign"><div><div class="line">(ลงชื่อ) ผู้กู้</div><div>('+(b.fullName||'..............')+')</div></div><div><div class="line">(ลงชื่อ) ผู้ให้กู้</div><div>('+(op.name||'..............')+')</div></div></div>'
++'<div class="sign">'+(app.guarantorName?'<div><div class="line">(ลงชื่อ) ผู้ค้ำประกัน</div><div>('+app.guarantorName+')</div></div>':'<div></div>')+'<div><div class="line">(ลงชื่อ) พยาน</div><div>(..............)</div></div><div><div class="line">(ลงชื่อ) พยาน</div><div>(..............)</div></div></div>'
++'<h2>ตารางผ่อนชำระแนบท้ายสัญญา</h2><table><thead><tr><th>งวด</th><th>ครบกำหนด</th><th class="r">เงินต้น</th><th class="r">ดอกเบี้ย</th><th class="r">รวม</th></tr></thead><tbody>'+schedRows+'<tr><th colspan="4" class="r">รวมทั้งสิ้น</th><th class="r">'+B(total)+'</th></tr></tbody></table>'
++'<p class="muted" style="font-size:11px;margin-top:16px">เอกสารนี้เป็นแบบสัญญาที่ระบบสร้างขึ้นเพื่ออำนวยความสะดวก มิใช่คำแนะนำทางกฎหมาย ควรให้นักกฎหมายตรวจทานก่อนนำไปใช้จริง • ออกโดยระบบ PicoFin '+new Date().toLocaleString('th-TH')+'</p>'
++'<div class="noprint center" style="margin:20px 0"><button onclick="window.print()" style="padding:10px 28px;font-size:15px;background:#16557B;color:#fff;border:none;border-radius:8px;cursor:pointer">🖨️ พิมพ์ / บันทึก PDF</button></div></body></html>';
+var w=window.open('','_blank');if(!w){alert('กรุณาอนุญาต popup');return;}w.document.write(html);w.document.close();w.focus();
+}catch(e){alert(e.message||e);}}
 async function apply(){try{await api('/applications','POST',{amount:parseFloat(document.getElementById('amt').value),annualRatePct:parseFloat(document.getElementById('rate').value),termMonths:parseInt(document.getElementById('term').value),purpose:document.getElementById('pp').value,occupation:document.getElementById('occ').value,monthlyIncome:parseInt(document.getElementById('inc').value)||0,idCardFront:await rImg('idf'),idCardBack:await rImg('idb'),selfieWithId:await rImg('self'),salarySlip:await rImg('slip'),guarantorName:document.getElementById('gname').value,guarantorPhone:document.getElementById('gphone').value,guarantorIdCard:await rImg('gid')});
   customer('myapps');}catch(e){document.getElementById('er').textContent=e.message;}}
 
