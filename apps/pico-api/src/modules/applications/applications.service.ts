@@ -1,3 +1,4 @@
+import { LoansService } from '../loans/loans.service';
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateApplicationDto } from './dto/application.dto';
@@ -6,7 +7,7 @@ import { checkCompliance } from '../../common/utils/pico';
 
 @Injectable()
 export class ApplicationsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService, private loans: LoansService) {}
 
   private async operator() {
     const op = await this.prisma.operator.findFirst();
@@ -37,9 +38,22 @@ export class ApplicationsService {
     const compliance = await this.preview(borrower.province, dto);
     if (!compliance.ok) throw new BadRequestException('ผิดเงื่อนไขพิโก: ' + compliance.violations.join(' | '));
 
-    return this.prisma.loanApplication.create({
+    const created = await this.prisma.loanApplication.create({
       data: { borrowerId, amount: toSatang(dto.amount), annualRatePct: dto.annualRatePct, termMonths: dto.termMonths, purpose: dto.purpose, occupation: dto.occupation, monthlyIncome: dto.monthlyIncome, idCardFront: dto.idCardFront, idCardBack: dto.idCardBack, selfieWithId: dto.selfieWithId, salarySlip: dto.salarySlip, guarantorName: dto.guarantorName, guarantorPhone: dto.guarantorPhone, guarantorIdCard: dto.guarantorIdCard, collateralType: dto.collateralType, collateralDetail: dto.collateralDetail, collateralValue: dto.collateralValue, collateralPhoto: dto.collateralPhoto, collateralRef: dto.collateralRef },
     });
+    try {
+      const okDocs = !!(dto.idCardFront && dto.idCardBack && dto.selfieWithId);
+      const okSecurity = !!((dto.collateralType && dto.collateralType !== 'ไม่มีหลักประกัน' && dto.collateralDetail) || (dto.guarantorName && dto.guarantorPhone));
+      const ltvMap: any = { 'ทองคำ': 0.9, 'รถยนต์/มอเตอร์ไซค์': 0.6, 'ที่ดิน/โฉนด (จำนอง)': 0.7, 'อื่นๆ': 0.5 };
+      const ltvr = ltvMap[dto.collateralType as any] || 0;
+      const okLtv = !(ltvr > 0 && dto.collateralValue) || ((dto.amount as number) <= (dto.collateralValue as number) * ltvr + 1);
+      const bor = await this.prisma.borrower.findUnique({ where: { id: (created as any).borrowerId } });
+      const okBorrower = !!(bor && bor.address && bor.phone);
+      if (okDocs && okSecurity && okLtv && okBorrower) {
+        await this.loans.approve((created as any).id, 'อนุมัติอัตโนมัติ: ข้อมูลครบและผ่านเกณฑ์');
+      }
+    } catch (e) {}
+    return created;
   }
 
   async list(status?: string) {
