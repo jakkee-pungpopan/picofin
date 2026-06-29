@@ -83,6 +83,11 @@ model LoanApplication {
   annualRatePct Float
   termMonths   Int
   purpose      String?
+  occupation    String?
+  monthlyIncome Int?
+  idCardFront   String?
+  idCardBack    String?
+  selfieWithId  String?
   status       AppStatus @default(PENDING)
   decisionNote String?
   createdAt    DateTime  @default(now())
