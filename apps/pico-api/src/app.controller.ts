@@ -1,6 +1,6 @@
 import { Controller, Get } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-@ApiTags('health') @Controller()
+@ApiTags('สถานะระบบ') @Controller()
 export class AppController {
   @Get() root() {
     return { name: 'PicoFin API', status: 'ok', docs: '/api/docs',
