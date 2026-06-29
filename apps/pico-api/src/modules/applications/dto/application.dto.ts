@@ -10,5 +10,9 @@ export class CreateApplicationDto {
   @ApiProperty({ required: false, description: 'รูปบัตรประชาชนด้านหน้า (base64)' }) @IsOptional() @IsString() idCardFront?: string;
   @ApiProperty({ required: false, description: 'รูปบัตรประชาชนด้านหลัง (base64)' }) @IsOptional() @IsString() idCardBack?: string;
   @ApiProperty({ required: false, description: 'รูปถ่ายคู่บัตรประชาชน (base64)' }) @IsOptional() @IsString() selfieWithId?: string;
+  @ApiProperty({ required: false, description: 'สลิปเงินเดือน (base64)' }) @IsOptional() @IsString() salarySlip?: string;
+  @ApiProperty({ required: false, example: 'สมศักดิ์ มั่นคง', description: 'ชื่อผู้ค้ำประกัน' }) @IsOptional() @IsString() guarantorName?: string;
+  @ApiProperty({ required: false, example: '0823456789', description: 'เบอร์โทรผู้ค้ำประกัน' }) @IsOptional() @IsString() guarantorPhone?: string;
+  @ApiProperty({ required: false, description: 'รูปบัตรประชาชนผู้ค้ำประกัน (base64)' }) @IsOptional() @IsString() guarantorIdCard?: string;
   @ApiProperty({ required: false, description: 'รหัสผู้กู้ (ผู้ประกอบการระบุ borrowerId; ลูกค้าไม่ต้องส่ง)' }) @IsOptional() @IsString() borrowerId?: string;
 }
