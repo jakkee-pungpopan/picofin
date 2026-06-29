@@ -1,6 +1,12 @@
 // PicoFin schema - Pico Finance lending platform. DEMO. Lend from own capital; NO public deposits.
-generator client { provider = "prisma-client-js" }
-datasource db { provider = "postgresql"; url = env("DATABASE_URL") }
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
 
 enum UserRole { OPERATOR STAFF BORROWER }
 enum PicoType { PICO PICO_PLUS }
@@ -8,14 +14,13 @@ enum AppStatus { PENDING APPROVED REJECTED CANCELLED }
 enum LoanStatus { ACTIVE CLOSED DEFAULTED }
 enum InstStatus { DUE PAID OVERDUE PARTIAL }
 
-// The Pico operator (the licensed lending business). One per deployment for demo.
 model Operator {
   id            String   @id @default(uuid())
   name          String
   picoType      PicoType @default(PICO)
-  province      String                       // operating province (same-province rule)
+  province      String
   licenseNo     String?
-  registeredCapital BigInt @default(0)        // satang
+  registeredCapital BigInt @default(0)
   createdAt     DateTime @default(now())
   @@map("operators")
 }
@@ -35,10 +40,10 @@ model Borrower {
   id           String   @id @default(uuid())
   userId       String?  @unique
   fullName     String
-  nationalId   String   @unique               // เลขบัตรประชาชน
+  nationalId   String   @unique
   phone        String?
   address      String?
-  province     String                          // ภูมิลำเนา (checked vs operator province)
+  province     String
   createdAt    DateTime @default(now())
   user         User?    @relation(fields: [userId], references: [id])
   applications LoanApplication[]
@@ -49,7 +54,7 @@ model Borrower {
 model LoanApplication {
   id           String    @id @default(uuid())
   borrowerId   String
-  amount       BigInt                          // requested principal, satang
+  amount       BigInt
   annualRatePct Float
   termMonths   Int
   purpose      String?
@@ -67,7 +72,7 @@ model Loan {
   contractNo    String     @unique
   applicationId String?    @unique
   borrowerId    String
-  principal     BigInt                          // satang
+  principal     BigInt
   annualRatePct Float
   termMonths    Int
   status        LoanStatus @default(ACTIVE)
