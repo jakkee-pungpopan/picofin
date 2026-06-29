@@ -10,7 +10,7 @@ services:
     plan: free
     dockerfilePath: ./apps/pico-api/Dockerfile
     dockerContext: ./apps/pico-api
-    dockerCommand: "sh -c 'npx prisma db push --skip-generate && npm run seed && node dist/main.js'"
+    dockerCommand: "sh -c 'npx prisma db push --skip-generate && npx ts-node --transpile-only prisma/seed.ts && npx ts-node --transpile-only src/main.ts'"
     envVars:
       - key: DATABASE_URL
         fromDatabase: { name: picofin-db, property: connectionString }
@@ -18,5 +18,3 @@ services:
         generateValue: true
       - key: JWT_ACCESS_TTL
         value: 8h
-      - key: NODE_ENV
-        value: production
