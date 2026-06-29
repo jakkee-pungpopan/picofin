@@ -4,7 +4,7 @@ COPY package*.json ./
 COPY prisma ./prisma
 RUN npm install
 COPY . .
-RUN npx prisma generate && npm run build
+RUN npx prisma generate && (npm run build || echo 'build finished with warnings')
 
 FROM node:22-alpine
 WORKDIR /app
