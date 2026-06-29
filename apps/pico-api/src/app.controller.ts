@@ -4,6 +4,6 @@ import { ApiTags } from '@nestjs/swagger';
 export class AppController {
   @Get() root() {
     return { name: 'PicoFin API', status: 'ok', docs: '/api/docs',
-      notice: 'ระบบสินเชื่อพิโกไฟแนนซ์ (ตัวอย่าง) — ปล่อยกู้จากทุนตัวเอง ไม่รับฝากเงินประชาชน' };
+      notice: 'ระบบสินเชื่อพิโกไฟแนนซ์ — ปล่อยกู้จากทุนตัวเอง ไม่รับฝากเงินประชาชน' };
   }
 }
