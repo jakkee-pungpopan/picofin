@@ -5,7 +5,7 @@ import { CreatePaymentDto } from './dto/payment.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
-@ApiTags('payments') @ApiBearerAuth() @UseGuards(JwtAuthGuard, RolesGuard) @Roles('OPERATOR', 'STAFF')
+@ApiTags('การชำระเงิน') @ApiBearerAuth() @UseGuards(JwtAuthGuard, RolesGuard) @Roles('OPERATOR', 'STAFF')
 @Controller('loans/:loanId/payments')
 export class PaymentsController {
   constructor(private s: PaymentsService) {}
