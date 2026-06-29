@@ -123,6 +123,7 @@ async function openLoan(id){try{const l=await api('/loans/'+id);
   var m=document.createElement('div');m.className='modal';m.onclick=function(e){if(e.target===m)m.remove();};
   m.innerHTML='<div class="mbox"><h3>สัญญา '+l.contractNo+'</h3>'+
     '<div class="label">เงินต้น '+B(l.principal)+' • ดอกเบี้ย '+l.annualRatePct+'%/ปี • '+l.termMonths+' งวด • รวมชำระ '+(l.summary?B(l.summary.total):'-')+'</div>'+
+    '<div class="label" style="color:#16557B;font-weight:600">ชำระแล้ว '+B((l.installments||[]).reduce(function(s,i){return s+(i.paidAmount||0);},0))+' ('+(l.installments||[]).filter(function(i){return i.status==='PAID';}).length+'/'+l.termMonths+' งวด) • คงเหลือ '+B((l.summary?l.summary.total:0)-(l.installments||[]).reduce(function(s,i){return s+(i.paidAmount||0);},0))+'</div>'+
     '<div style="margin:10px 0;"><div class="label">บันทึกรับชำระ (บาท)</div><input id="payamt" type="number" placeholder="เช่น 1066.19">'+
     '<button class="btn" style="margin-top:4px;" onclick="pay(\''+l.id+'\')">รับชำระ + ตัดงวด</button><div class="err" id="payerr"></div></div>'+
     '<table><tr><th>งวด</th><th>ครบกำหนด</th><th>เงินต้น</th><th>ดอกเบี้ย</th><th>รวม</th><th>สถานะ</th></tr>'+rows+'</table></div>';
