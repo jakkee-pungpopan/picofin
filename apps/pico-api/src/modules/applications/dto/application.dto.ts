@@ -14,5 +14,9 @@ export class CreateApplicationDto {
   @ApiProperty({ required: false, example: 'สมศักดิ์ มั่นคง', description: 'ชื่อผู้ค้ำประกัน' }) @IsOptional() @IsString() guarantorName?: string;
   @ApiProperty({ required: false, example: '0823456789', description: 'เบอร์โทรผู้ค้ำประกัน' }) @IsOptional() @IsString() guarantorPhone?: string;
   @ApiProperty({ required: false, description: 'รูปบัตรประชาชนผู้ค้ำประกัน (base64)' }) @IsOptional() @IsString() guarantorIdCard?: string;
+  @ApiProperty({ required: false, example: 'ทองคำ', description: 'ประเภทหลักประกัน (ไม่มี/บุคคลค้ำ/ทอง/รถ/ที่ดิน/อื่นๆ)' }) @IsOptional() @IsString() collateralType?: string;
+  @ApiProperty({ required: false, example: 'ทองรูปพรรณ 2 บาท', description: 'รายละเอียดหลักประกัน' }) @IsOptional() @IsString() collateralDetail?: string;
+  @ApiProperty({ required: false, example: 50000, description: 'มูลค่าประเมินหลักประกัน (บาท)' }) @IsOptional() @IsNumber() collateralValue?: number;
+  @ApiProperty({ required: false, description: 'รูปถ่ายหลักประกัน (base64)' }) @IsOptional() @IsString() collateralPhoto?: string;
   @ApiProperty({ required: false, description: 'รหัสผู้กู้ (ผู้ประกอบการระบุ borrowerId; ลูกค้าไม่ต้องส่ง)' }) @IsOptional() @IsString() borrowerId?: string;
 }
