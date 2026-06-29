@@ -1,1 +1,248 @@
-null
+<!DOCTYPE html>
+<html lang="th"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PicoFin — ระบบสินเชื่อพิโกไฟแนนซ์</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/3.21.0/tabler-icons.min.css">
+<style>@import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&display=swap');
+:root{--pri:#16557B;--pri2:#0E3A56;--acc:#1FA98F;--acc2:#27c7ad;--bg:#EEF2F7;--card:#fff;--mut:#6B7280;--txt:#16202A;--dng:#E5484D;--ok:#15a35b;--line:#e7edf3;--shadow:0 1px 3px rgba(16,40,60,.07),0 10px 28px rgba(16,40,60,.06)}
+*{box-sizing:border-box}
+body{margin:0;font-family:'Sarabun','Segoe UI',Tahoma,sans-serif;background:var(--bg);color:var(--txt);-webkit-font-smoothing:antialiased;font-size:15px}
+button{font-family:inherit;cursor:pointer}
+.top{background:linear-gradient(135deg,var(--pri),var(--pri2));color:#fff;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 14px rgba(14,58,86,.25);position:sticky;top:0;z-index:30}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:19px}
+.brand .ti{font-size:24px}
+.top .link,.top a,.top span,.top .ti-logout{color:#fff}
+.top .ti-logout{cursor:pointer;opacity:.9;font-size:20px}.top .ti-logout:hover{opacity:1}
+.banner{background:#fff7e6;color:#8a5b00;border-bottom:1px solid #ffe3a3;font-size:12.5px;text-align:center;padding:8px 12px}
+.wrap{max-width:1080px;margin:0 auto;padding:0 16px}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;padding:16px 0 10px}
+.tabs button{border:1px solid var(--line);background:#fff;color:var(--mut);padding:9px 18px;border-radius:999px;font-size:14px;font-weight:600;transition:.15s;box-shadow:0 1px 2px rgba(16,40,60,.04)}
+.tabs button:hover{border-color:var(--acc);color:var(--pri)}
+.tabs button.on{background:var(--pri);color:#fff;border-color:var(--pri);box-shadow:0 6px 16px rgba(22,85,123,.3)}
+.pad{padding:4px 0 44px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:var(--shadow)}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin:6px 0 18px}
+.cards .card{position:relative;overflow:hidden;padding:16px 18px}
+.cards .card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:linear-gradient(var(--acc),var(--acc2))}
+.lbl{color:var(--mut);font-size:13px;margin-bottom:7px;font-weight:500}
+.val{font-size:26px;font-weight:800;color:var(--pri);letter-spacing:-.5px;line-height:1.1}
+h2{font-size:20px;font-weight:800;margin:8px 0 12px}h3{font-size:17px;font-weight:700;margin:0 0 8px}
+.label{font-size:13px;color:var(--mut);margin:13px 0 5px;font-weight:600}
+input,select,textarea{width:100%;padding:11px 13px;border:1px solid var(--line);border-radius:11px;font-size:15px;font-family:inherit;background:#fff;color:var(--txt);transition:.15s;outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(31,169,143,.16)}
+input[type=file]{padding:9px;background:#f7fafc}
+.btn{display:block;width:100%;background:linear-gradient(135deg,var(--pri),var(--pri2));color:#fff;border:0;padding:13px;border-radius:12px;font-size:15.5px;font-weight:700;box-shadow:0 6px 16px rgba(22,85,123,.26);transition:.15s;margin-top:6px}
+.btn:hover{filter:brightness(1.07);transform:translateY(-1px)}.btn:active{transform:translateY(0)}
+.act{background:var(--ok);color:#fff;border:0;padding:8px 16px;border-radius:9px;font-weight:700;font-size:13.5px;transition:.15s}.act:hover{filter:brightness(1.08)}
+.rej{background:#fff;color:var(--dng);border:1px solid var(--dng);padding:8px 16px;border-radius:9px;font-weight:600;font-size:13.5px;transition:.15s;margin-left:6px}.rej:hover{background:var(--dng);color:#fff}
+.ghost,.gh{background:#eef4f8;color:var(--pri);border:1px solid var(--line);padding:8px 14px;border-radius:9px;font-weight:600;font-size:13.5px;transition:.15s}.ghost:hover,.gh:hover{background:#e2edf4}
+table{width:100%;border-collapse:separate;border-spacing:0;font-size:14px;background:#fff;border-radius:14px;overflow:hidden;box-shadow:var(--shadow);margin-top:6px}
+th{background:#f4f8fb;color:var(--mut);text-align:left;font-weight:700;padding:12px 14px;font-size:12.5px;border-bottom:1px solid var(--line)}
+td{padding:12px 14px;border-bottom:1px solid var(--line)}
+tr:last-child td{border-bottom:0}
+tbody tr{transition:.1s}tbody tr:hover{background:#f7fafc}
+.pill{display:inline-block;padding:3px 11px;border-radius:999px;font-size:12px;font-weight:600;background:#eef2f6;color:var(--mut)}
+.login{max-width:390px;margin:7vh auto;padding:0 16px}.login .card{padding:28px}.login h2{text-align:center}
+.err{color:var(--dng);font-size:13px;margin-top:8px;text-align:center}
+.muted{color:var(--mut)}.r{text-align:right}.center{text-align:center}
+.box{background:#f7fafc;border:1px solid var(--line);border-radius:12px;padding:14px;margin-top:10px}
+.modal{position:fixed;inset:0;background:rgba(16,30,45,.55);backdrop-filter:blur(3px);display:flex;align-items:flex-start;justify-content:center;overflow:auto;z-index:60;padding:18px}
+.mbox{background:#fff;max-width:560px;width:100%;border-radius:18px;padding:22px;box-shadow:0 24px 64px rgba(0,0,0,.32);margin:20px 0}
+.link{color:var(--acc);cursor:pointer;text-decoration:none;font-weight:600}
+@media(max-width:560px){.wrap{padding:0 12px}.val{font-size:22px}.top{padding:12px 14px}.brand{font-size:17px}}</style></head>
+<body><div id="root"></div>
+<script>
+var API=localStorage.getItem('pf_api')||'',TOKEN=localStorage.getItem('pf_token')||'',ME=JSON.parse(localStorage.getItem('pf_me')||'null');
+var root=document.getElementById('root');
+function B(n){return '฿'+Number(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});}
+function tR(r){return ({OPERATOR:'ผู้ประกอบการ',STAFF:'พนักงาน',BORROWER:'ลูกค้า'})[r]||r;}
+function tS(s){return ({PENDING:'รออนุมัติ',APPROVED:'อนุมัติแล้ว',REJECTED:'ปฏิเสธ',CANCELLED:'ยกเลิก',ACTIVE:'กำลังผ่อน',CLOSED:'ปิดสัญญา',DEFAULTED:'ผิดนัด',DUE:'รอชำระ',PAID:'ชำระแล้ว',OVERDUE:'เกินกำหนด',PARTIAL:'ชำระบางส่วน'})[s]||s;}
+function esc(s){return (''+s).replace(/"/g,'&quot;');}
+async function api(path,method,body){
+  const r=await fetch(API.replace(/\/$/,'')+'/api'+path,{method:method||'GET',
+    headers:Object.assign({'Content-Type':'application/json'},TOKEN?{Authorization:'Bearer '+TOKEN}:{}),
+    body:body?JSON.stringify(body):undefined});
+  const d=await r.json().catch(()=>null);
+  if(!r.ok) throw new Error((d&&(d.error||d.message))||('HTTP '+r.status)); return d;
+}
+function setupScreen(msg){root.innerHTML='<div class="login"><h3>PicoFin — ตั้งค่าเซิร์ฟเวอร์</h3>'+
+  '<div class="label">วางลิงก์ API ที่ deploy แล้ว เช่น https://picofin-api.onrender.com</div>'+
+  (msg?'<div class="err">'+msg+'</div>':'')+
+  '<input id="u" placeholder="https://picofin-api.onrender.com" value="'+esc(API)+'">'+
+  '<button class="btn" onclick="(function(){var v=document.getElementById(\'u\').value.trim();if(v){API=v;localStorage.setItem(\'pf_api\',v);loginScreen();}})()">บันทึก</button></div>';}
+
+function loginScreen(){root.innerHTML='<div class="login" style="text-align:center;">'+
+  '<div style="font-size:40px;color:var(--pri);"><i class="ti ti-building-bank"></i></div>'+
+  '<h3>PicoFin</h3><div class="label" style="margin-bottom:14px;">ระบบจัดการสินเชื่อพิโกไฟแนนซ์</div>'+
+  '<div style="text-align:left;"><div class="label">อีเมล</div><input id="e" value="owner@picofin.local">'+
+  '<div class="label">รหัสผ่าน</div><input id="p" type="password" value="Password@123">'+
+  '<div class="err" id="er"></div></div>'+
+  '<button class="btn" onclick="doLogin()">เข้าสู่ระบบ</button>'+
+  '<div style="margin-top:12px;"><a class="link" onclick="registerScreen()">ลงทะเบียนเป็นลูกค้า (ผู้กู้)</a></div>'+
+  '<div style="margin-top:8px;"><a class="link" onclick="setupScreen()">เปลี่ยนเซิร์ฟเวอร์</a></div>'+
+  '<div class="label" style="margin-top:14px;">: owner@ / staff@ / somchai@picofin.local (รหัส Password@123)</div></div>';}
+async function doLogin(){try{const r=await api('/auth/login','POST',{email:document.getElementById('e').value.trim(),password:document.getElementById('p').value});
+  TOKEN=r.accessToken;ME=r.user;localStorage.setItem('pf_token',TOKEN);localStorage.setItem('pf_me',JSON.stringify(ME));route();}
+  catch(e){document.getElementById('er').textContent=e.message;}}
+function logout(){TOKEN='';ME=null;localStorage.removeItem('pf_token');localStorage.removeItem('pf_me');loginScreen();}
+
+function registerScreen(){root.innerHTML='<div class="login"><h3>ลงทะเบียนลูกค้า (ผู้กู้)</h3>'+
+  '<div class="label">ชื่อ-นามสกุล</div><input id="n">'+
+  '<div class="label">อีเมล</div><input id="e">'+
+  '<div class="label">รหัสผ่าน (อย่างน้อย 8 ตัว)</div><input id="p" type="password">'+
+  '<div class="label">เลขบัตรประชาชน</div><input id="nid" value="1100700999999">'+
+  '<div class="label">จังหวัด (ภูมิลำเนา)</div><input id="pv" value="บุรีรัมย์">'+
+  '<div class="err" id="er"></div><button class="btn" onclick="doReg()">สร้างบัญชี</button>'+
+  '<div style="margin-top:10px;"><a class="link" onclick="loginScreen()">กลับไปเข้าสู่ระบบ</a></div></div>';}
+async function doReg(){try{const r=await api('/auth/register','POST',{fullName:document.getElementById('n').value.trim(),email:document.getElementById('e').value.trim(),password:document.getElementById('p').value,nationalId:document.getElementById('nid').value.trim(),province:document.getElementById('pv').value.trim()});
+  TOKEN=r.accessToken;ME=r.user;localStorage.setItem('pf_token',TOKEN);localStorage.setItem('pf_me',JSON.stringify(ME));route();}
+  catch(e){document.getElementById('er').textContent=e.message;}}
+
+function route(){ if(!API)return setupScreen(); if(!TOKEN||!ME)return loginScreen();
+  (ME.role==='BORROWER')?customer('apply'):operator('dash'); }
+
+/* ================= OPERATOR ================= */
+function shellOp(active,body){
+  var tabs=[['dash','แดชบอร์ด'],['apps','คำขอกู้'],['loans','สัญญากู้'],['borrowers','ลูกค้า']];
+  root.innerHTML='<div class="top"><div class="brand"><i class="ti ti-building-bank"></i> PicoFin</div>'+
+    '<div><span style="font-size:13px;margin-right:12px;">'+ME.fullName+' ('+tR(ME.role)+')</span><i class="ti ti-logout" style="cursor:pointer;" onclick="logout()"></i></div></div>'+
+    '<div class="banner">ระบบสินเชื่อพิโกไฟแนนซ์ — ปล่อยกู้จากทุนตัวเอง ไม่รับฝากเงินประชาชน</div>'+
+    '<div class="tabs">'+tabs.map(t=>'<button class="'+(active===t[0]?'on':'')+'" onclick="operator(\''+t[0]+'\')">'+t[1]+'</button>').join('')+'</div>'+
+    '<div class="wrap"><div class="pad" id="body">กำลังโหลด...</div></div>';
+}
+async function operator(tab){shellOp(tab,'');var body=document.getElementById('body');try{
+  if(tab==='dash'){const d=await api('/dashboard');
+    body.innerHTML='<div class="cards">'+
+      card('ทุนคงเหลือ',B(d.operator?d.operator.capital:0))+card('ลูกค้า',d.borrowers)+
+      card('สัญญาที่ใช้งาน',d.activeLoans)+card('คำขอรออนุมัติ',d.pendingApplications)+
+      card('ยอดปล่อยกู้รวม',B(d.totalDisbursed))+card('ยอดค้างชำระ',B(d.outstanding))+'</div>'+
+      '<div class="card"><b>ผู้ประกอบการ:</b> '+(d.operator?d.operator.name+' • '+d.operator.picoType+' • จ.'+d.operator.province:'-')+'</div>';
+  } else if(tab==='apps'){const a=await api('/applications?status=PENDING');
+    body.innerHTML='<h3>คำขอกู้ที่รออนุมัติ</h3>'+(a.length?tableApps(a):'<div class="card">ไม่มีคำขอรออนุมัติ</div>');
+  } else if(tab==='loans'){const l=await api('/loans');
+    body.innerHTML='<h3>สัญญากู้</h3>'+(l.length?tableLoans(l):'<div class="card">ยังไม่มีสัญญา</div>');
+  } else if(tab==='borrowers'){const b=await api('/borrowers');
+    body.innerHTML='<h3>ลูกค้า</h3><table><tr><th>ชื่อ</th><th>บัตร ปชช.</th><th>จังหวัด</th><th>สัญญา</th></tr>'+
+      b.map(x=>'<tr><td>'+x.fullName+'</td><td>'+x.nationalId+'</td><td>'+x.province+'</td><td>'+(x._count?x._count.loans:0)+'</td></tr>').join('')+'</table>';
+  }}catch(e){body.innerHTML='<div class="err">'+e.message+'</div>';}}
+function card(l,v){return '<div class="card"><div class="lbl">'+l+'</div><div class="val">'+v+'</div></div>';}
+function tableApps(a){return '<table><tr><th>ลูกค้า</th><th>จังหวัด</th><th>วงเงิน</th><th>ดอกเบี้ย</th><th>งวด</th><th>วัตถุประสงค์</th><th></th></tr>'+
+  a.map(x=>'<tr><td>'+x.borrower.fullName+'</td><td>'+x.borrower.province+'</td><td>'+B(x.amount)+'</td><td>'+x.annualRatePct+'%</td><td>'+x.termMonths+'</td><td>'+(x.purpose||'-')+'</td>'+
+  '<td><button class="ghost" onclick="viewDoc(\''+x.id+'\')">ดูเอกสาร</button><button class="act" onclick="approve(\''+x.id+'\')">อนุมัติ</button> <button class="rej" onclick="reject(\''+x.id+'\')">ปฏิเสธ</button></td></tr>').join('')+'</table>';}
+function tableLoans(l){return '<table><tr><th>เลขสัญญา</th><th>ลูกค้า</th><th>เงินต้น</th><th>ดอกเบี้ย</th><th>งวด</th><th>สถานะ</th><th></th></tr>'+
+  l.map(x=>'<tr><td>'+x.contractNo+'</td><td>'+(x.borrower?x.borrower.fullName:'')+'</td><td>'+B(x.principal)+'</td><td>'+x.annualRatePct+'%</td><td>'+x.termMonths+'</td><td><span class="pill" style="background:'+(x.status==='CLOSED'?'#dff3ee':'#e7eef5')+';">'+tS(x.status)+'</span></td>'+
+  '<td><button class="gh" onclick="openLoan(\''+x.id+'\')">ดูตารางผ่อน</button></td></tr>').join('')+'</table>';}
+async function approve(id){try{await api('/loans/applications/'+id+'/approve','POST',{});operator('apps');}catch(e){alert(e.message);}}
+async function reject(id){var r=prompt('เหตุผลที่ปฏิเสธ:');if(r===null)return;try{await api('/loans/applications/'+id+'/reject','POST',{reason:r||'-'});operator('apps');}catch(e){alert(e.message);}}
+async function openLoan(id){try{const l=await api('/loans/'+id);
+  var rows=l.installments.map(i=>'<tr><td>'+i.no+'</td><td>'+new Date(i.dueDate).toLocaleDateString('th-TH')+'</td><td>'+B(i.principal)+'</td><td>'+B(i.interest)+'</td><td>'+B(i.total)+'</td><td><span class="pill" style="background:'+(i.status==='PAID'?'#dff3ee':'#f7f1d8')+';">'+((new Date(i.dueDate)<new Date()&&i.status!=='PAID'&&i.status!=='CLOSED')?'<span style="color:#c0392b;font-weight:700">เกินกำหนด</span>':tS(i.status))+'</span></td></tr>').join('');
+  var m=document.createElement('div');m.className='modal';m.onclick=function(e){if(e.target===m)m.remove();};
+  m.innerHTML='<div class="mbox"><h3>สัญญา '+l.contractNo+'</h3>'+
+    '<div class="label">เงินต้น '+B(l.principal)+' • ดอกเบี้ย '+l.annualRatePct+'%/ปี • '+l.termMonths+' งวด • รวมชำระ '+(l.summary?B(l.summary.total):'-')+'</div>'+
+    '<div class="label" style="color:#16557B;font-weight:600">ชำระแล้ว '+B((l.installments||[]).reduce(function(s,i){return s+(i.paidAmount||0);},0))+' ('+(l.installments||[]).filter(function(i){return i.status==='PAID';}).length+'/'+l.termMonths+' งวด) • คงเหลือ '+B((l.summary?l.summary.total:0)-(l.installments||[]).reduce(function(s,i){return s+(i.paidAmount||0);},0))+'</div>'+
+    '<div class="label">งวดถัดไป: '+(function(){var n=(l.installments||[]).find(function(i){return i.status!=='PAID';});return n?('งวด '+n.no+' ครบกำหนด '+new Date(n.dueDate).toLocaleDateString('th-TH')+' • '+B(n.total-(n.paidAmount||0))):'ชำระครบทุกงวดแล้ว';})()+'</div>'+
+    '<button class="ghost" style="margin-top:8px;margin-bottom:4px" onclick="printLoan(\''+l.id+'\')">🖨️ พิมพ์สัญญา/ตารางผ่อน</button>'+
+    '<button class="ghost" style="margin:4px 0 8px" onclick="loanContract(\''+l.id+'\')">📄 สัญญากู้ (สำหรับเซ็น)</button>'+
+    '<div style="margin:10px 0;"><div class="label">บันทึกรับชำระ (บาท)</div><input id="payamt" type="number" placeholder="เช่น 1066.19">'+
+    '<button class="btn" style="margin-top:4px;" onclick="pay(\''+l.id+'\')">รับชำระ + ตัดงวด</button><div class="err" id="payerr"></div></div>'+
+    '<table><tr><th>งวด</th><th>ครบกำหนด</th><th>เงินต้น</th><th>ดอกเบี้ย</th><th>รวม</th><th>สถานะ</th></tr>'+rows+'</table></div>';
+  document.body.appendChild(m);}catch(e){alert(e.message);}}
+async function pay(id){var v=parseFloat(document.getElementById('payamt').value);if(!v){document.getElementById('payerr').textContent='ใส่จำนวนเงิน';return;}
+  try{const r=await api('/loans/'+id+'/payments','POST',{amount:v});document.querySelector('.modal').remove();openLoan(id);if(r.loanClosed)setTimeout(()=>alert('ชำระครบ ปิดสัญญาแล้ว'),200);}catch(e){document.getElementById('payerr').textContent=e.message;}}
+
+/* ================= CUSTOMER ================= */
+function shellCu(active,body){
+  var tabs=[['apply','ขอสินเชื่อ'],['myapps','คำขอของฉัน'],['myloans','สัญญาของฉัน']];
+  root.innerHTML='<div class="top"><div class="brand"><i class="ti ti-user"></i> PicoFin</div>'+
+    '<div><span style="font-size:13px;margin-right:12px;">'+ME.fullName+'</span><i class="ti ti-logout" style="cursor:pointer;" onclick="logout()"></i></div></div>'+
+    '<div class="banner">ระบบสินเชื่อพิโกไฟแนนซ์ — สินเชื่อพิโกไฟแนนซ์</div>'+
+    '<div class="tabs">'+tabs.map(t=>'<button class="'+(active===t[0]?'on':'')+'" onclick="customer(\''+t[0]+'\')">'+t[1]+'</button>').join('')+'</div>'+
+    '<div class="wrap"><div class="pad" id="body">กำลังโหลด...</div></div>';
+}
+async function customer(tab){shellCu(tab,'');var body=document.getElementById('body');try{
+  if(tab==='apply'){body.innerHTML='<div class="card" style="max-width:460px;"><h3>ยื่นขอสินเชื่อ</h3>'+
+    '<div class="label">วงเงิน (บาท) — สูงสุด 50,000</div><input id="amt" type="number" value="20000">'+
+    '<div class="label">ดอกเบี้ยต่อปี (%) — สูงสุด 36</div><input id="rate" type="number" value="24">'+
+    '<div class="label">จำนวนงวด (เดือน)</div><input id="term" type="number" value="12">'+
+    '<div class="label">วัตถุประสงค์</div><input id="pp" value="เงินทุนหมุนเวียน">'+
+    '<div class="err" id="er"></div><div class="label">อาชีพ</div><input id="occ" value=""><div class="label">รายได้ต่อเดือน (บาท)</div><input id="inc" type="number" value=""><div class="label">บัตรประชาชนด้านหน้า (ถ่ายรูป)</div><input id="idf" type="file" accept="image/*" capture="environment"><div class="label">บัตรประชาชนด้านหลัง (ถ่ายรูป)</div><input id="idb" type="file" accept="image/*" capture="environment"><div class="label">รูปถ่ายคู่บัตรประชาชน (เซลฟี่)</div><input id="self" type="file" accept="image/*" capture="user"><div class="label">สลิปเงินเดือน (ถ่ายรูป)</div><input id="slip" type="file" accept="image/*" capture="environment"><div class="label">ชื่อผู้ค้ำประกัน</div><input id="gname" value=""><div class="label">เบอร์โทรผู้ค้ำประกัน</div><input id="gphone" value=""><div class="label">บัตรประชาชนผู้ค้ำประกัน (ถ่ายรูป)</div><input id="gid" type="file" accept="image/*" capture="environment"><div class="label">ประเภทหลักประกัน</div><select id="coltype" onchange="ltvCalc()"><option>ไม่มีหลักประกัน</option><option>บุคคลค้ำประกัน</option><option>ทองคำ</option><option>รถยนต์/มอเตอร์ไซค์</option><option>ที่ดิน/โฉนด (จำนอง)</option><option>อื่นๆ</option></select><div class="label">รายละเอียดหลักประกัน</div><input id="coldetail" value="" placeholder="เช่น ทอง 2 บาท / รถ จยย. กข1234 / โฉนดเลขที่..."><div class="label">เลขโฉนด/ทะเบียนรถ/อ้างอิง</div><input id="colref" value="" placeholder="เช่น โฉนดเลขที่ 12345 / ทะเบียน กข1234"><div class="label">มูลค่าประเมิน (บาท)</div><input id="colval" type="number" value="" oninput="ltvCalc()"><div id="ltvhint" style="color:#1a8f4c;font-size:13px;margin:4px 0"></div><div class="label">รูปถ่ายหลักประกัน</div><input id="colp" type="file" accept="image/*" capture="environment"><button class="btn" onclick="apply()">ส่งคำขอ</button></div>';
+  } else if(tab==='myapps'){const a=await api('/applications/mine');
+    body.innerHTML='<h3>คำขอของฉัน</h3>'+(a.length?'<table><tr><th>วันที่</th><th>วงเงิน</th><th>ดอกเบี้ย</th><th>งวด</th><th>สถานะ</th></tr>'+
+      a.map(x=>'<tr><td>'+new Date(x.createdAt).toLocaleDateString('th-TH')+'</td><td>'+B(x.amount)+'</td><td>'+x.annualRatePct+'%</td><td>'+x.termMonths+'</td><td>'+tS(x.status)+'</td></tr>').join('')+'</table>':'<div class="card">ยังไม่มีคำขอ</div>');
+  } else if(tab==='myloans'){const l=await api('/loans/mine');
+    body.innerHTML='<h3>สัญญาของฉัน</h3>'+(l.length?l.map(x=>'<div class="card"><b>'+x.contractNo+'</b> — เงินต้น '+B(x.principal)+' • '+x.annualRatePct+'%/ปี • '+x.termMonths+' งวด • สถานะ '+x.status+
+      '<table style="margin-top:8px;"><tr><th>งวด</th><th>ครบกำหนด</th><th>รวม</th><th>สถานะ</th></tr>'+
+      x.installments.map(i=>'<tr><td>'+i.no+'</td><td>'+new Date(i.dueDate).toLocaleDateString('th-TH')+'</td><td>'+B(i.total)+'</td><td>'+((new Date(i.dueDate)<new Date()&&i.status!=='PAID'&&i.status!=='CLOSED')?'<span style="color:#c0392b;font-weight:700">เกินกำหนด</span>':tS(i.status))+'</td></tr>').join('')+'</table></div>').join(''):'<div class="card">ยังไม่มีสัญญา</div>');
+  }}catch(e){body.innerHTML='<div class="err">'+e.message+'</div>';}}
+async function rImg(id){return new Promise(function(res){var el=document.getElementById(id);var f=el&&el.files?el.files[0]:null;if(!f){res(null);return;}var r=new FileReader();r.onload=function(){var img=new Image();img.onload=function(){var c=document.createElement('canvas');var m=900,w=img.width,h=img.height;if(w>h&&w>m){h=h*m/w;w=m;}else if(h>m){w=w*m/h;h=m;}c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);res(c.toDataURL('image/jpeg',0.6));};img.src=r.result;};r.readAsDataURL(f);});}
+async function viewDoc(id){try{var l=await api('/applications');var x=(l||[]).find(function(a){return a.id===id;});if(!x){alert('ไม่พบข้อมูล');return;}var im=function(u){return u?'<img src="'+u+'" style="max-width:100%;border:1px solid #ddd;border-radius:8px;margin:6px 0">':'<div style="color:#888;margin:6px 0">— ไม่มีรูป —</div>';};var html='<div style="position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:flex-start;justify-content:center;overflow:auto;z-index:99" onclick="this.remove()"><div style="background:#fff;max-width:520px;width:92%;margin:24px;padding:18px;border-radius:12px" onclick="event.stopPropagation()"><h3>เอกสารผู้กู้</h3><div style="margin-bottom:8px">อาชีพ: '+(x.occupation||'-')+' • รายได้/เดือน: '+(x.monthlyIncome?('฿'+x.monthlyIncome):'-')+'</div><div class="label">บัตรประชาชนด้านหน้า</div>'+im(x.idCardFront)+'<div class="label">บัตรประชาชนด้านหลัง</div>'+im(x.idCardBack)+'<div class="label">รูปถ่ายคู่บัตรประชาชน</div>'+im(x.selfieWithId)+'<div class="label">สลิปเงินเดือน</div>'+im(x.salarySlip)+'<div style="margin:6px 0">ผู้ค้ำประกัน: '+(x.guarantorName||'-')+' • '+(x.guarantorPhone||'-')+'</div><div class="label">บัตรประชาชนผู้ค้ำประกัน</div>'+im(x.guarantorIdCard)+'<div style="margin:6px 0">หลักประกัน: '+(x.collateralType||'-')+' '+(x.collateralDetail||'')+(x.collateralRef?(' • '+x.collateralRef):'')+(x.collateralValue?(' (มูลค่า ฿'+x.collateralValue+')'):'')+'</div>'+(x.collateralPhoto?('<div class="label">รูปหลักประกัน</div>'+im(x.collateralPhoto)):'')+'<button class="btn" style="margin-top:10px" onclick="this.parentNode.parentNode.remove()">ปิด</button></div></div>';document.body.insertAdjacentHTML('beforeend',html);}catch(e){alert(e.message||e);}}
+async function printLoan(id){try{var ls=await api('/loans');var l=(ls||[]).find(function(a){return a.id===id;});if(!l){alert('ไม่พบสัญญา');return;}var paid=(l.installments||[]).reduce(function(s,i){return s+(i.paidAmount||0);},0);var total=l.summary?l.summary.total:0;var rows=(l.installments||[]).map(function(i){return '<tr><td>'+i.no+'</td><td>'+new Date(i.dueDate).toLocaleDateString('th-TH')+'</td><td style="text-align:right">'+B(i.principal)+'</td><td style="text-align:right">'+B(i.interest)+'</td><td style="text-align:right">'+B(i.total)+'</td><td>'+((new Date(i.dueDate)<new Date()&&i.status!=='PAID'&&i.status!=='CLOSED')?'<span style="color:#c0392b;font-weight:700">เกินกำหนด</span>':tS(i.status))+'</td></tr>';}).join('');var bw=(l.borrower&&l.borrower.fullName)||'-';var html='<html><head><meta charset="utf-8"><title>สัญญา '+l.contractNo+'</title><style>body{font-family:Tahoma,sans-serif;padding:24px;color:#16202A}h2{margin:0 0 4px}table{width:100%;border-collapse:collapse;margin-top:12px;font-size:13px}th,td{border:1px solid #ccc;padding:6px 8px}th{background:#f3f6f9;text-align:left}.muted{color:#6b7280}.box{margin:10px 0;padding:10px;border:1px solid #e6ebf0;border-radius:8px}</style></head><body><h2>พิโกไฟแนนซ์ บุรีรัมย์</h2><div class="muted">สัญญาสินเชื่อ เลขที่ '+l.contractNo+'</div><div class="box">ผู้กู้: <b>'+bw+'</b><br>เงินต้น: '+B(l.principal)+' • ดอกเบี้ย '+l.annualRatePct+'%/ปี • '+l.termMonths+' งวด<br>รวมต้องชำระ: '+B(total)+' • ชำระแล้ว: '+B(paid)+' • คงเหลือ: '+B(total-paid)+'</div><table><thead><tr><th>งวด</th><th>ครบกำหนด</th><th>เงินต้น</th><th>ดอกเบี้ย</th><th>รวม</th><th>สถานะ</th></tr></thead><tbody>'+rows+'</tbody></table><p class="muted" style="margin-top:18px;font-size:12px">ออกโดยระบบ PicoFin • พิมพ์เมื่อ '+new Date().toLocaleString('th-TH')+'</p></body></html>';var w=window.open('','_blank');w.document.write(html);w.document.close();w.focus();setTimeout(function(){w.print();},400);}catch(e){alert(e.message||e);}}
+async function loanContract(id){try{
+var ls=await api('/loans');var l=(ls||[]).find(function(a){return a.id===id;});if(!l){alert('ไม่พบสัญญา');return;}
+var apps=[];try{apps=await api('/applications');}catch(e){}
+var app=(apps||[]).find(function(a){return a.id===l.applicationId;})||{};
+var dash={};try{dash=await api('/dashboard');}catch(e){}
+var op=dash.operator||{};var b=l.borrower||{};
+var rules=op.picoType==='PICO_PLUS'?{max:100000,rate:28,label:'PICO+ (พิโกพลัส)'}:{max:50000,rate:36,label:'PICO (พิโกไฟแนนซ์)'};
+var total=l.summary?l.summary.total:0;
+var perInst=(l.installments&&l.installments[0])?l.installments[0].total:0;
+var firstDue=(l.installments&&l.installments[0])?new Date(l.installments[0].dueDate).toLocaleDateString('th-TH'):'-';
+var lastDue=(l.installments&&l.installments.length)?new Date(l.installments[l.installments.length-1].dueDate).toLocaleDateString('th-TH'):'-';
+var sumPrin=(l.installments||[]).reduce(function(s,i){return s+i.principal;},0);
+var c=[];function ck(k,ok,v){c.push({k:k,ok:ok,v:v});}
+ck('ชื่อ-นามสกุลผู้กู้',!!(b.fullName&&b.fullName.length>=3),b.fullName||'-');
+ck('เลขบัตรประชาชน 13 หลัก',/^[0-9]{13}$/.test(String(b.nationalId||'').replace(/[^0-9]/g,'')),b.nationalId||'-');
+ck('ที่อยู่ผู้กู้',!!b.address,b.address||'(ยังไม่ระบุ)');
+ck('เบอร์โทรผู้กู้',!!b.phone,b.phone||'(ยังไม่ระบุ)');
+ck('จังหวัดผู้กู้ตรงกับผู้ประกอบการ',!!(b.province&&op.province&&b.province===op.province),(b.province||'-')+' / '+(op.province||'-'));
+ck('แนบบัตรประชาชนด้านหน้า',!!app.idCardFront,app.idCardFront?'แนบแล้ว':'ยังไม่แนบ');
+ck('แนบบัตรประชาชนด้านหลัง',!!app.idCardBack,app.idCardBack?'แนบแล้ว':'ยังไม่แนบ');
+ck('รูปถ่ายคู่บัตรประชาชน',!!app.selfieWithId,app.selfieWithId?'แนบแล้ว':'ยังไม่แนบ');
+ck('หลักประกัน/ผู้ค้ำประกัน',!!((app.collateralType&&app.collateralType!=='ไม่มีหลักประกัน'&&app.collateralDetail)||(app.guarantorName&&app.guarantorPhone)),(app.collateralType&&app.collateralType!=='ไม่มีหลักประกัน')?(app.collateralType+' '+(app.collateralDetail||'')):((app.guarantorName||'(ไม่มี)')+' '+(app.guarantorPhone||'')));var ltvM={'ทองคำ':0.9,'รถยนต์/มอเตอร์ไซค์':0.6,'ที่ดิน/โฉนด (จำนอง)':0.7,'อื่นๆ':0.5};var ltvr=ltvM[app.collateralType]||0;if(ltvr>0&&app.collateralValue){ck('วงเงินกู้ไม่เกิน '+Math.round(ltvr*100)+'% ของมูลค่าหลักประกัน',l.principal<=app.collateralValue*ltvr+1,B(l.principal)+' / สูงสุด '+B(app.collateralValue*ltvr));}
+ck('วงเงินไม่เกินเพดาน '+rules.label+' (ไม่เกิน '+rules.max.toLocaleString()+')',l.principal<=rules.max,B(l.principal));
+ck('อัตราดอกเบี้ยไม่เกินเพดาน (ไม่เกิน '+rules.rate+'%/ปี)',l.annualRatePct<=rules.rate,l.annualRatePct+'%/ปี');
+ck('ผลรวมเงินต้นในตารางผ่อน = เงินกู้',Math.abs(sumPrin-l.principal)<1,B(sumPrin)+' / '+B(l.principal));
+ck('จำนวนงวดถูกต้อง',(l.installments||[]).length===l.termMonths,(l.installments||[]).length+'/'+l.termMonths+' งวด');
+var allOk=c.every(function(x){return x.ok;});
+var checkRows=c.map(function(x){return '<tr><td style="width:22px">'+(x.ok?'✅':'❌')+'</td><td>'+x.k+'</td><td class="muted">'+x.v+'</td></tr>';}).join('');
+var schedRows=(l.installments||[]).map(function(i){return '<tr><td>'+i.no+'</td><td>'+new Date(i.dueDate).toLocaleDateString('th-TH')+'</td><td class="r">'+B(i.principal)+'</td><td class="r">'+B(i.interest)+'</td><td class="r">'+B(i.total)+'</td></tr>';}).join('');
+var today=new Date().toLocaleDateString('th-TH');
+var hasCol=app.collateralType&&app.collateralType!=='ไม่มีหลักประกัน'&&app.collateralType!=='บุคคลค้ำประกัน'&&app.collateralDetail;var gClause=hasCol?('<p><b>ข้อ 7. หลักประกัน</b> ผู้กู้ตกลงมอบ '+app.collateralType+' รายละเอียด '+app.collateralDetail+(app.collateralRef?(' เลขอ้างอิง '+app.collateralRef):'')+(app.collateralValue?(' ประเมินมูลค่า '+B(app.collateralValue)):'')+' เป็นหลักประกันการชำระหนี้ตามสัญญานี้ หากผู้กู้ผิดนัด ผู้ให้กู้มีสิทธิบังคับชำระหนี้จากหลักประกันตามที่กฎหมายกำหนด</p>'):(app.guarantorName?('<p><b>ข้อ 7. ผู้ค้ำประกัน</b> '+app.guarantorName+' โทร '+(app.guarantorPhone||'-')+' ตกลงเข้าผูกพันตนเป็นผู้ค้ำประกันการชำระหนี้ตามสัญญานี้ และยินยอมรับผิดอย่างลูกหนี้ร่วมจนกว่าผู้กู้จะชำระหนี้ครบถ้วน</p>'):'');
+var html='<html><head><meta charset="utf-8"><title>สัญญากู้ยืมเงิน '+(l.contractNo||'')+'</title><style>'
++'body{font-family:Tahoma,sans-serif;color:#1a1a1a;max-width:780px;margin:0 auto;padding:28px;line-height:1.55;font-size:14px}'
++'h1{text-align:center;font-size:20px;margin:0 0 2px}h2{font-size:15px;margin:18px 0 6px;border-bottom:1px solid #ccc;padding-bottom:3px}'
++'.center{text-align:center}.muted{color:#666}.r{text-align:right}'
++'table{width:100%;border-collapse:collapse;margin:8px 0;font-size:13px}th,td{border:1px solid #bbb;padding:5px 7px}th{background:#f2f5f8;text-align:left}'
++'.chk{border:2px solid '+(allOk?'#1a8f4c':'#c0392b')+';border-radius:8px;padding:10px 14px;margin-bottom:18px;background:'+(allOk?'#eafaf0':'#fdecea')+'}'
++'.chk td{border:none;padding:2px 6px;font-size:12px}'
++'.sign{display:flex;justify-content:space-between;margin-top:30px;gap:24px}.sign div{flex:1;text-align:center}'
++'.line{border-top:1px dotted #333;margin-top:44px;padding-top:4px}@media print{.noprint{display:none}}'
++'</style></head><body>'
++'<div class="chk noprint"><b>'+(allOk?'✅ ตรวจความถูกต้องอัตโนมัติ: ผ่านครบทุกข้อ — พร้อมพิมพ์ให้ลูกค้าเซ็น':'⚠️ ตรวจพบข้อมูลไม่ครบ/ไม่ถูกต้อง โปรดแก้ไขก่อนให้ลูกค้าเซ็น')+'</b><table>'+checkRows+'</table><div class="muted" style="font-size:11px">* แถบตรวจสอบนี้แสดงเฉพาะบนหน้าจอ ไม่ถูกพิมพ์ลงในสัญญา</div></div>'
++'<h1>สัญญากู้ยืมเงิน</h1>'
++'<div class="center muted">เลขที่สัญญา '+(l.contractNo||'-')+' • ทำที่ จังหวัด'+(op.province||'-')+' • วันที่ '+today+'</div>'
++'<p>สัญญานี้ทำขึ้นระหว่าง <b>'+(op.name||'ผู้ให้กู้')+'</b> ผู้ประกอบธุรกิจสินเชื่อรายย่อยระดับจังหวัดภายใต้การกำกับ ประเภท '+rules.label+' ซึ่งต่อไปนี้เรียกว่า "ผู้ให้กู้" ฝ่ายหนึ่ง กับ <b>'+(b.fullName||'-')+'</b> เลขประจำตัวประชาชน '+(b.nationalId||'-')+' อยู่บ้านเลขที่ '+(b.address||'-')+' โทร '+(b.phone||'-')+' ซึ่งต่อไปนี้เรียกว่า "ผู้กู้" อีกฝ่ายหนึ่ง ทั้งสองฝ่ายตกลงทำสัญญากันโดยมีข้อความดังต่อไปนี้</p>'
++'<p><b>ข้อ 1. จำนวนเงินกู้</b> ผู้ให้กู้ตกลงให้กู้ และผู้กู้ตกลงกู้ยืมเงินจำนวน '+B(l.principal)+' โดยผู้กู้ได้รับเงินครบถ้วนแล้วในวันทำสัญญา เพื่อวัตถุประสงค์ '+(app.purpose||'ใช้จ่ายส่วนบุคคล')+'</p>'
++'<p><b>ข้อ 2. อัตราดอกเบี้ย</b> ผู้กู้ตกลงชำระดอกเบี้ยอัตรา '+l.annualRatePct+'% ต่อปี แบบลดต้นลดดอก ซึ่งไม่เกินเพดานที่กฎหมายว่าด้วยสินเชื่อรายย่อยระดับจังหวัดกำหนด ('+rules.label+' ไม่เกิน '+rules.rate+'%/ปี)</p>'
++'<p><b>ข้อ 3. การชำระคืน</b> ผู้กู้ตกลงผ่อนชำระเป็นงวดรายเดือน รวม '+l.termMonths+' งวด งวดละประมาณ '+B(perInst)+' ตามวันที่กำหนดในตารางแนบท้าย เริ่มงวดแรก '+firstDue+' งวดสุดท้าย '+lastDue+' รวมต้องชำระทั้งสิ้น '+B(total)+'</p>'
++'<p><b>ข้อ 4. การผิดนัดชำระ</b> หากผู้กู้ผิดนัดงวดใด ผู้ให้กู้มีสิทธิคิดดอกเบี้ยผิดนัดเพิ่มตามที่กฎหมายกำหนด และมีสิทธิเรียกให้ชำระหนี้ทั้งหมดคืนทันที</p>'
++'<p><b>ข้อ 5. การชำระก่อนกำหนด</b> ผู้กู้มีสิทธิชำระคืนทั้งหมดหรือบางส่วนก่อนกำหนดได้ โดยคิดดอกเบี้ยตามจริงถึงวันชำระ</p>'
++'<p><b>ข้อ 6. ความถูกต้องของข้อมูล</b> ผู้กู้รับรองว่าข้อมูลและเอกสารที่ให้ไว้ รวมถึงสำเนาบัตรประชาชนและภาพถ่าย เป็นความจริงทุกประการ</p>'
++gClause
++'<p><b>ข้อ 8. ข้อมูลส่วนบุคคล (PDPA)</b> ผู้กู้ยินยอมให้ผู้ให้กู้เก็บรวบรวม ใช้ และเปิดเผยข้อมูลส่วนบุคคลเท่าที่จำเป็นต่อการพิจารณาและบริหารสินเชื่อ ตาม พ.ร.บ.คุ้มครองข้อมูลส่วนบุคคล พ.ศ. 2562</p>'
++'<p><b>ข้อ 9. กฎหมายที่ใช้บังคับ</b> สัญญานี้อยู่ภายใต้กฎหมายไทย หากมีข้อพิพาทให้อยู่ในเขตอำนาจศาลจังหวัด'+(op.province||'-')+'</p>'
++'<p class="muted">ผู้กู้ได้อ่านและเข้าใจข้อความในสัญญานี้โดยตลอดแล้ว เห็นว่าถูกต้องตรงตามเจตนา จึงลงลายมือชื่อไว้เป็นสำคัญต่อหน้าพยาน</p>'
++'<div class="sign"><div><div class="line">(ลงชื่อ) ผู้กู้</div><div>('+(b.fullName||'..............')+')</div></div><div><div class="line">(ลงชื่อ) ผู้ให้กู้</div><div>('+(op.name||'..............')+')</div></div></div>'
++'<div class="sign">'+(app.guarantorName?'<div><div class="line">(ลงชื่อ) ผู้ค้ำประกัน</div><div>('+app.guarantorName+')</div></div>':'<div></div>')+'<div><div class="line">(ลงชื่อ) พยาน</div><div>(..............)</div></div><div><div class="line">(ลงชื่อ) พยาน</div><div>(..............)</div></div></div>'
++'<h2>ตารางผ่อนชำระแนบท้ายสัญญา</h2><table><thead><tr><th>งวด</th><th>ครบกำหนด</th><th class="r">เงินต้น</th><th class="r">ดอกเบี้ย</th><th class="r">รวม</th></tr></thead><tbody>'+schedRows+'<tr><th colspan="4" class="r">รวมทั้งสิ้น</th><th class="r">'+B(total)+'</th></tr></tbody></table>'
++'<p class="muted" style="font-size:11px;margin-top:16px">เอกสารนี้เป็นแบบสัญญาที่ระบบสร้างขึ้นเพื่ออำนวยความสะดวก มิใช่คำแนะนำทางกฎหมาย ควรให้นักกฎหมายตรวจทานก่อนนำไปใช้จริง • ออกโดยระบบ PicoFin '+new Date().toLocaleString('th-TH')+'</p>'
++'<div class="noprint center" style="margin:20px 0"><button onclick="window.print()" style="padding:10px 28px;font-size:15px;background:#16557B;color:#fff;border:none;border-radius:8px;cursor:pointer">🖨️ พิมพ์ / บันทึก PDF</button></div></body></html>';
+var w=window.open('','_blank');if(!w){alert('กรุณาอนุญาต popup');return;}w.document.write(html);w.document.close();w.focus();
+}catch(e){alert(e.message||e);}}
+function ltvRatio(t){return {'ทองคำ':0.9,'รถยนต์/มอเตอร์ไซค์':0.6,'ที่ดิน/โฉนด (จำนอง)':0.7,'อื่นๆ':0.5}[t]||0;}
+function ltvCalc(){var t=(document.getElementById('coltype')||{}).value;var v=parseInt((document.getElementById('colval')||{}).value)||0;var r=ltvRatio(t);var el=document.getElementById('ltvhint');if(!el)return;el.textContent=(r>0&&v>0)?('วงเงินที่อนุมัติได้สูงสุด: ฿'+Math.min(Math.round(v*r),50000).toLocaleString()+' (หลักประกัน '+Math.round(r*100)+'%'+((v*r)>50000?' • จำกัดเพดานพิโก 50,000':'')+')'):'';}
+async function apply(){try{await api('/applications','POST',{amount:parseFloat(document.getElementById('amt').value),annualRatePct:parseFloat(document.getElementById('rate').value),termMonths:parseInt(document.getElementById('term').value),purpose:document.getElementById('pp').value,occupation:document.getElementById('occ').value,monthlyIncome:parseInt(document.getElementById('inc').value)||0,idCardFront:await rImg('idf'),idCardBack:await rImg('idb'),selfieWithId:await rImg('self'),salarySlip:await rImg('slip'),guarantorName:document.getElementById('gname').value,guarantorPhone:document.getElementById('gphone').value,guarantorIdCard:await rImg('gid'),collateralType:document.getElementById('coltype').value,collateralDetail:document.getElementById('coldetail').value,collateralValue:parseInt(document.getElementById('colval').value)||0,collateralRef:document.getElementById('colref').value,collateralPhoto:await rImg('colp')});
+  customer('myapps');}catch(e){document.getElementById('er').textContent=e.message;}}
+
+route();
+</script></body></html>
