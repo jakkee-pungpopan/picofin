@@ -9,7 +9,7 @@ async function main() {
   const op = await prisma.operator.findFirst();
   if (!op) {
     await prisma.operator.create({
-      data: { name: 'พิโกไฟแนนซ์ เชียงใหม่ (ตัวอย่าง)', picoType: 'PICO', province: 'เชียงใหม่',
+      data: { name: 'พิโกไฟแนนซ์ เชียงใหม่ (ตัวอย่าง)', picoType: 'PICO', province: 'บุรีรัมย์',
         licenseNo: 'PICO-DEMO-0001', registeredCapital: BigInt(5_000_000_00) }, // 5,000,000 บาท
     });
   }
@@ -23,7 +23,7 @@ async function main() {
   // Demo borrower (same province as operator)
   const borrowerUser = await prisma.user.upsert({ where: { email: 'somchai@picofin.local' }, update: {},
     create: { email: 'somchai@picofin.local', fullName: 'สมชาย ใจดี', passwordHash: pw, role: 'BORROWER',
-      borrower: { create: { fullName: 'สมชาย ใจดี', nationalId: '1100700123456', province: 'เชียงใหม่', phone: '0810000001', address: 'อ.เมือง เชียงใหม่' } } },
+      borrower: { create: { fullName: 'สมชาย ใจดี', nationalId: '1100700123456', province: 'บุรีรัมย์', phone: '0810000001', address: 'อ.เมือง เชียงใหม่' } } },
     include: { borrower: true } });
 
   // A pending application ready to approve in the demo
@@ -39,5 +39,7 @@ async function main() {
   console.log('  ผู้ประกอบการ : owner@picofin.local / Password@123');
   console.log('  พนักงาน      : staff@picofin.local / Password@123');
   console.log('  ลูกค้า(ผู้กู้): somchai@picofin.local / Password@123');
+  await prisma.operator.updateMany({ data: { province: 'บุรีรัมย์' } });
 }
+
 main().catch((e) => { console.error(e); process.exit(1); }).finally(() => prisma.$disconnect());
