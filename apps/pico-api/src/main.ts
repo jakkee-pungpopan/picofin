@@ -13,7 +13,7 @@ async function bootstrap() {
   app.useGlobalFilters(new AllExceptionsFilter());
   const cfg = new DocumentBuilder()
     .setTitle('PicoFin API — ระบบสินเชื่อพิโกไฟแนนซ์')
-    .setDescription('แพลตฟอร์มสินเชื่อพิโกไฟแนนซ์ (ตัวอย่าง) — ปล่อยกู้จากทุนตัวเองเท่านั้น ไม่รับเงินฝากจากประชาชน')
+    .setDescription('แพลตฟอร์มสินเชื่อพิโกไฟแนนซ์ — ปล่อยกู้จากทุนตัวเองเท่านั้น ไม่รับเงินฝากจากประชาชน')
     .setVersion('0.1.0').addBearerAuth().build();
   SwaggerModule.setup('api/docs', app, SwaggerModule.createDocument(app, cfg));
   const port = process.env.PORT || process.env.API_PORT || 3000;
