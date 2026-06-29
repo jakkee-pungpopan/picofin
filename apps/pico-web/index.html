@@ -90,11 +90,11 @@ function registerScreen(){root.innerHTML='<div class="login"><h3>ลงทะเ
   '<div class="label">ชื่อ-นามสกุล</div><input id="n">'+
   '<div class="label">อีเมล</div><input id="e">'+
   '<div class="label">รหัสผ่าน (อย่างน้อย 8 ตัว)</div><input id="p" type="password">'+
-  '<div class="label">เลขบัตรประชาชน</div><input id="nid" value="1100700999999">'+
-  '<div class="label">จังหวัด (ภูมิลำเนา)</div><input id="pv" value="บุรีรัมย์">'+
+  '<div class="label">เลขบัตรประชาชน (13 หลัก) *</div><input id="nid" value="1100700999999">'+
+  '<div class="label">จังหวัด (ภูมิลำเนา)</div><input id="pv" value="บุรีรัมย์"><div class="label">เบอร์โทรศัพท์ *</div><input id="ph" value="" placeholder="08xxxxxxxx"><div class="label">ที่อยู่ *</div><input id="ad" value="" placeholder="บ้านเลขที่ / ถนน / ตำบล / อำเภอ">'+
   '<div class="err" id="er"></div><button class="btn" onclick="doReg()">สร้างบัญชี</button>'+
   '<div style="margin-top:10px;"><a class="link" onclick="loginScreen()">กลับไปเข้าสู่ระบบ</a></div></div>';}
-async function doReg(){try{const r=await api('/auth/register','POST',{fullName:document.getElementById('n').value.trim(),email:document.getElementById('e').value.trim(),password:document.getElementById('p').value,nationalId:document.getElementById('nid').value.trim(),province:document.getElementById('pv').value.trim()});
+async function doReg(){try{var _v=function(id){var el=document.getElementById(id);return el&&el.value?el.value.trim():'';};var _er=document.getElementById('er');if(!_v('n')||!_v('nid')||!_v('ph')||!_v('ad')){if(_er)_er.textContent='กรุณากรอก ชื่อ-นามสกุล, เลขบัตรประชาชน, เบอร์โทร และที่อยู่ ให้ครบ';return;}if(!/^[0-9]{13}$/.test(_v('nid'))){if(_er)_er.textContent='เลขบัตรประชาชนต้องเป็นตัวเลข 13 หลัก';return;}if(_v('ph').replace(/[^0-9]/g,'').length<9){if(_er)_er.textContent='เบอร์โทรศัพท์ไม่ถูกต้อง';return;}const r=await api('/auth/register','POST',{fullName:document.getElementById('n').value.trim(),email:document.getElementById('e').value.trim(),password:document.getElementById('p').value,nationalId:document.getElementById('nid').value.trim(),province:document.getElementById('pv').value.trim(),phone:document.getElementById('ph').value.trim(),address:document.getElementById('ad').value.trim()});
   TOKEN=r.accessToken;ME=r.user;localStorage.setItem('pf_token',TOKEN);localStorage.setItem('pf_me',JSON.stringify(ME));route();}
   catch(e){document.getElementById('er').textContent=e.message;}}
 
