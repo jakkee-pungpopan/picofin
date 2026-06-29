@@ -6,7 +6,7 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
-@ApiTags('loans') @ApiBearerAuth() @UseGuards(JwtAuthGuard)
+@ApiTags('สัญญาเงินกู้') @ApiBearerAuth() @UseGuards(JwtAuthGuard)
 @Controller('loans')
 export class LoansController {
   constructor(private s: LoansService) {}
