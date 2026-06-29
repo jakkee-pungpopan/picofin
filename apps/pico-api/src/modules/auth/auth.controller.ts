@@ -2,7 +2,7 @@ import { Body, Controller, Post, HttpCode } from '@nestjs/common';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { LoginDto, RegisterBorrowerDto } from './dto/auth.dto';
-@ApiTags('auth') @Controller('auth')
+@ApiTags('เข้าสู่ระบบ') @Controller('auth')
 export class AuthController {
   constructor(private auth: AuthService) {}
   @Post('login') @HttpCode(200) @ApiOperation({ summary: 'เข้าสู่ระบบ (ผู้ประกอบการ/พนักงาน/ลูกค้า)' })
