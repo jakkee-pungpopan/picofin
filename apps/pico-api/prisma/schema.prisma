@@ -96,6 +96,7 @@ model LoanApplication {
   collateralDetail String?
   collateralValue Int?
   collateralPhoto String?
+  collateralRef String?
   status       AppStatus @default(PENDING)
   decisionNote String?
   createdAt    DateTime  @default(now())
