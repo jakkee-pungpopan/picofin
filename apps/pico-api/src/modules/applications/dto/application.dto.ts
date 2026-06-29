@@ -18,5 +18,6 @@ export class CreateApplicationDto {
   @ApiProperty({ required: false, example: 'ทองรูปพรรณ 2 บาท', description: 'รายละเอียดหลักประกัน' }) @IsOptional() @IsString() collateralDetail?: string;
   @ApiProperty({ required: false, example: 50000, description: 'มูลค่าประเมินหลักประกัน (บาท)' }) @IsOptional() @IsNumber() collateralValue?: number;
   @ApiProperty({ required: false, description: 'รูปถ่ายหลักประกัน (base64)' }) @IsOptional() @IsString() collateralPhoto?: string;
+  @ApiProperty({ required: false, example: 'โฉนดเลขที่ 12345 / ทะเบียน กข1234', description: 'เลขโฉนด/ทะเบียนรถ/เลขอ้างอิงหลักประกัน' }) @IsOptional() @IsString() collateralRef?: string;
   @ApiProperty({ required: false, description: 'รหัสผู้กู้ (ผู้ประกอบการระบุ borrowerId; ลูกค้าไม่ต้องส่ง)' }) @IsOptional() @IsString() borrowerId?: string;
 }
