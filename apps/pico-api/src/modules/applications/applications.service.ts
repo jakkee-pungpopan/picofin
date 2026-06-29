@@ -38,7 +38,7 @@ export class ApplicationsService {
     if (!compliance.ok) throw new BadRequestException('ผิดเงื่อนไขพิโก: ' + compliance.violations.join(' | '));
 
     return this.prisma.loanApplication.create({
-      data: { borrowerId, amount: toSatang(dto.amount), annualRatePct: dto.annualRatePct, termMonths: dto.termMonths, purpose: dto.purpose, occupation: dto.occupation, monthlyIncome: dto.monthlyIncome, idCardFront: dto.idCardFront, idCardBack: dto.idCardBack, selfieWithId: dto.selfieWithId, salarySlip: dto.salarySlip, guarantorName: dto.guarantorName, guarantorPhone: dto.guarantorPhone, guarantorIdCard: dto.guarantorIdCard, collateralType: dto.collateralType, collateralDetail: dto.collateralDetail, collateralValue: dto.collateralValue, collateralPhoto: dto.collateralPhoto },
+      data: { borrowerId, amount: toSatang(dto.amount), annualRatePct: dto.annualRatePct, termMonths: dto.termMonths, purpose: dto.purpose, occupation: dto.occupation, monthlyIncome: dto.monthlyIncome, idCardFront: dto.idCardFront, idCardBack: dto.idCardBack, selfieWithId: dto.selfieWithId, salarySlip: dto.salarySlip, guarantorName: dto.guarantorName, guarantorPhone: dto.guarantorPhone, guarantorIdCard: dto.guarantorIdCard, collateralType: dto.collateralType, collateralDetail: dto.collateralDetail, collateralValue: dto.collateralValue, collateralPhoto: dto.collateralPhoto, collateralRef: dto.collateralRef },
     });
   }
 
