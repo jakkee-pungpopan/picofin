@@ -1,0 +1,26 @@
+name: novabank
+description: NovaBank mobile app (Flutter) - DEMO ONLY. Do not use for real financial transactions.
+publish_to: 'none'
+version: 0.1.0+1
+
+environment:
+  sdk: '>=3.3.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  provider: ^6.1.2
+  http: ^1.2.2
+  intl: ^0.19.0
+  local_auth: ^2.3.0          # Face ID / Fingerprint
+  flutter_secure_storage: ^9.2.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true

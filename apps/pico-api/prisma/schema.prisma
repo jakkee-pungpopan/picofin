@@ -1,0 +1,120 @@
+// PicoFin schema - Pico Finance lending platform. DEMO. Lend from own capital; NO public deposits.
+generator client { provider = "prisma-client-js" }
+datasource db { provider = "postgresql"; url = env("DATABASE_URL") }
+
+enum UserRole { OPERATOR STAFF BORROWER }
+enum PicoType { PICO PICO_PLUS }
+enum AppStatus { PENDING APPROVED REJECTED CANCELLED }
+enum LoanStatus { ACTIVE CLOSED DEFAULTED }
+enum InstStatus { DUE PAID OVERDUE PARTIAL }
+
+// The Pico operator (the licensed lending business). One per deployment for demo.
+model Operator {
+  id            String   @id @default(uuid())
+  name          String
+  picoType      PicoType @default(PICO)
+  province      String                       // operating province (same-province rule)
+  licenseNo     String?
+  registeredCapital BigInt @default(0)        // satang
+  createdAt     DateTime @default(now())
+  @@map("operators")
+}
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  fullName     String
+  passwordHash String
+  role         UserRole @default(BORROWER)
+  borrower     Borrower?
+  createdAt    DateTime @default(now())
+  @@map("users")
+}
+
+model Borrower {
+  id           String   @id @default(uuid())
+  userId       String?  @unique
+  fullName     String
+  nationalId   String   @unique               // เลขบัตรประชาชน
+  phone        String?
+  address      String?
+  province     String                          // ภูมิลำเนา (checked vs operator province)
+  createdAt    DateTime @default(now())
+  user         User?    @relation(fields: [userId], references: [id])
+  applications LoanApplication[]
+  loans        Loan[]
+  @@map("borrowers")
+}
+
+model LoanApplication {
+  id           String    @id @default(uuid())
+  borrowerId   String
+  amount       BigInt                          // requested principal, satang
+  annualRatePct Float
+  termMonths   Int
+  purpose      String?
+  status       AppStatus @default(PENDING)
+  decisionNote String?
+  createdAt    DateTime  @default(now())
+  borrower     Borrower  @relation(fields: [borrowerId], references: [id], onDelete: Cascade)
+  loan         Loan?
+  @@index([status])
+  @@map("loan_applications")
+}
+
+model Loan {
+  id            String     @id @default(uuid())
+  contractNo    String     @unique
+  applicationId String?    @unique
+  borrowerId    String
+  principal     BigInt                          // satang
+  annualRatePct Float
+  termMonths    Int
+  status        LoanStatus @default(ACTIVE)
+  disbursedAt   DateTime   @default(now())
+  borrower      Borrower      @relation(fields: [borrowerId], references: [id])
+  application   LoanApplication? @relation(fields: [applicationId], references: [id])
+  installments  Installment[]
+  payments      Payment[]
+  @@index([borrowerId])
+  @@map("loans")
+}
+
+model Installment {
+  id         String     @id @default(uuid())
+  loanId     String
+  no         Int
+  dueDate    DateTime
+  principal  BigInt
+  interest   BigInt
+  total      BigInt
+  paidAmount BigInt     @default(0)
+  status     InstStatus @default(DUE)
+  paidAt     DateTime?
+  loan       Loan       @relation(fields: [loanId], references: [id], onDelete: Cascade)
+  @@unique([loanId, no])
+  @@map("installments")
+}
+
+model Payment {
+  id          String   @id @default(uuid())
+  loanId      String
+  amount      BigInt
+  method      String   @default("CASH")
+  note        String?
+  createdAt   DateTime @default(now())
+  loan        Loan     @relation(fields: [loanId], references: [id], onDelete: Cascade)
+  @@index([loanId])
+  @@map("payments")
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  actorId   String?
+  action    String
+  entity    String?
+  entityId  String?
+  metadata  Json?
+  createdAt DateTime @default(now())
+  @@map("audit_logs")
+}

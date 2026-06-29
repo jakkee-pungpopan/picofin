@@ -1,0 +1,204 @@
+// NovaBank Prisma schema - DEMO ONLY. Do not use for real financial transactions.
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+  PENDING
+}
+
+enum AccountType {
+  SAVINGS
+  CURRENT
+  WALLET
+}
+
+enum TxnType {
+  TRANSFER_IN
+  TRANSFER_OUT
+  BILL_PAYMENT
+  TOPUP
+  ADJUSTMENT
+}
+
+enum TxnStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  REVERSED
+}
+
+enum AdminRole {
+  SUPER_ADMIN
+  ADMIN
+  AUDITOR
+}
+
+model User {
+  id           String     @id @default(uuid())
+  email        String     @unique
+  phone        String?    @unique
+  fullName     String
+  passwordHash String
+  pinHash      String?
+  status       UserStatus @default(ACTIVE)
+  biometricEnabled Boolean @default(false)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  accounts      Account[]
+  devices       UserDevice[]
+  recipients    TransferRecipient[]
+  notifications Notification[]
+  refreshTokens RefreshToken[]
+
+  @@map("users")
+}
+
+model UserDevice {
+  id          String   @id @default(uuid())
+  userId      String
+  deviceName  String
+  deviceId    String
+  pushToken   String?
+  lastLoginAt DateTime @default(now())
+  createdAt   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, deviceId])
+  @@map("user_devices")
+}
+
+// Refresh token store for rotation (hashed). Not in the required list but needed for secure rotation.
+model RefreshToken {
+  id         String   @id @default(uuid())
+  userId     String
+  tokenHash  String
+  expiresAt  DateTime
+  revoked    Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("refresh_tokens")
+}
+
+model Account {
+  id            String      @id @default(uuid())
+  userId        String
+  accountNumber String      @unique
+  type          AccountType @default(SAVINGS)
+  name          String
+  // Balance stored in satang (1 THB = 100 satang) as BigInt to avoid float errors.
+  balance       BigInt      @default(0)
+  currency      String      @default("THB")
+  isPrimary     Boolean     @default(false)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  txnFrom         Transaction[] @relation("fromAccount")
+  txnTo           Transaction[] @relation("toAccount")
+
+  @@map("accounts")
+}
+
+model Transaction {
+  id            String    @id @default(uuid())
+  reference     String    @unique
+  type          TxnType
+  status        TxnStatus @default(SUCCESS)
+  amount        BigInt    // satang
+  fee           BigInt    @default(0)
+  currency      String    @default("THB")
+  description   String?
+  fromAccountId String?
+  toAccountId   String?
+  // snapshot of external/promptpay/bill target when not an internal account
+  counterparty  String?
+  balanceAfter  BigInt?
+  createdAt     DateTime  @default(now())
+
+  fromAccount Account? @relation("fromAccount", fields: [fromAccountId], references: [id])
+  toAccount   Account? @relation("toAccount", fields: [toAccountId], references: [id])
+
+  @@index([fromAccountId])
+  @@index([toAccountId])
+  @@index([createdAt])
+  @@map("transactions")
+}
+
+model TransferRecipient {
+  id            String   @id @default(uuid())
+  userId        String
+  nickname      String
+  accountNumber String
+  bankName      String   @default("NovaBank")
+  promptPayId   String?
+  isFavorite    Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("transfer_recipients")
+}
+
+model Biller {
+  id         String   @id @default(uuid())
+  code       String   @unique
+  name       String
+  category   String
+  logoUrl    String?
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+
+  @@map("billers")
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  title     String
+  body      String
+  type      String   @default("GENERAL")
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("notifications")
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  actorType  String   // USER | ADMIN | SYSTEM
+  actorId    String?
+  action     String
+  entity     String?
+  entityId   String?
+  metadata   Json?
+  ip         String?
+  createdAt  DateTime @default(now())
+
+  @@index([actorId])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+model AdminUser {
+  id           String    @id @default(uuid())
+  email        String    @unique
+  fullName     String
+  passwordHash String
+  role         AdminRole @default(ADMIN)
+  isActive     Boolean   @default(true)
+  createdAt    DateTime  @default(now())
+
+  @@map("admin_users")
+}

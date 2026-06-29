@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ADDBANK</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/3.21.0/tabler-icons.min.css">
+<style>
+  :root{--grn:#0E8A4F;--dk:#0A5E36;--lime:#8BC53F;--danger:#E5484D;--bg:#F1F7F1;--mut:#6B7280;--txt:#15301c;}
+  *{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI','Sarabun',Tahoma,sans-serif;}
+  body{background:var(--bg);min-height:100vh;color:var(--txt);}
+  .app{max-width:440px;margin:0 auto;min-height:100vh;background:var(--bg);position:relative;}
+  button{cursor:pointer;border:none;font-size:16px;}
+  .btn{width:100%;background:var(--grn);color:#fff;border-radius:12px;padding:14px;font-weight:600;}
+  .btn:disabled{opacity:.6;}
+  .ghost{background:#fff;border:1px solid #d8e3d8;border-radius:12px;padding:13px;width:100%;color:var(--txt);}
+  .topbar{background:var(--grn);color:#fff;padding:16px 18px;display:flex;align-items:center;gap:12px;}
+  .topbar .ti{font-size:20px;cursor:pointer;}
+  .banner{background:#FFF3CD;color:#7A5C00;font-size:11px;text-align:center;padding:6px;}
+  .pad{padding:16px;}
+  .card{background:#fff;border-radius:14px;padding:16px;margin-bottom:10px;}
+  .row{display:flex;justify-content:space-between;font-size:14px;padding:5px 0;}
+  .row .k{color:var(--mut);} .row .v{font-weight:600;}
+  .field{background:#fff;border:1px solid #d8e3d8;border-radius:10px;padding:13px;font-size:15px;width:100%;margin:6px 0 14px;}
+  .label{font-size:13px;color:var(--mut);}
+  .err{color:var(--danger);font-size:13px;margin:6px 0;min-height:18px;}
+  .txn{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:.5px solid #e7efe7;}
+  .av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;}
+  .muted{color:var(--mut);font-size:12px;}
+  a.link{color:var(--grn);font-size:13px;cursor:pointer;}
+  .center{text-align:center;}
+</style>
+</head>
+<body>
+<div class="app" id="app"></div>
+<script>
+var GRN='#0E8A4F',LIME='#8BC53F',DANGER='#E5484D';
+var app=document.getElementById('app');
+var API=localStorage.getItem('addbank_api')||'';
+var token=localStorage.getItem('addbank_token')||'';
+function money(n){return '฿'+Number(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});}
+
+async function api(path,method,body){
+  var res=await fetch(API.replace(/\/$/,'')+'/api'+path,{
+    method:method||'GET',
+    headers:Object.assign({'Content-Type':'application/json'},token?{'Authorization':'Bearer '+token}:{}),
+    body:body?JSON.stringify(body):undefined
+  });
+  var data=await res.json().catch(function(){return null;});
+  if(!res.ok) throw new Error((data&&(data.error||data.message))||('HTTP '+res.status));
+  return data;
+}
+
+/* ---- API URL setup (first run) ---- */
+function setupScreen(msg){
+  app.innerHTML='<div class="topbar"><b>ADDBANK</b></div><div class="pad">'+
+    '<div class="card"><div style="font-size:16px;font-weight:600;margin-bottom:6px;">ตั้งค่าที่อยู่เซิร์ฟเวอร์</div>'+
+    '<div class="muted">วางลิงก์ของ API ที่ deploy แล้ว เช่น https://addbank-api.onrender.com</div>'+
+    (msg?'<div class="err">'+msg+'</div>':'')+
+    '<input class="field" id="apiUrl" placeholder="https://addbank-api.onrender.com" value="'+(API||'')+'">'+
+    '<button class="btn" onclick="saveApi()">บันทึก</button>'+
+    '<div class="muted center" style="margin-top:10px;">ระบบตัวอย่าง — ไม่ใช่ธุรกรรมจริง</div></div></div>';
+}
+function saveApi(){var v=document.getElementById('apiUrl').value.trim();if(!v){return;}API=v;localStorage.setItem('addbank_api',v);loginScreen();}
+
+/* ---- LOGIN / REGISTER ---- */
+function loginScreen(){
+  app.innerHTML='<div style="background:'+GRN+';padding:46px 22px 30px;color:#fff;text-align:center;">'+
+    '<i class="ti ti-leaf" style="color:'+LIME+';font-size:46px;"></i><div style="font-size:28px;font-weight:600;">ADDBANK</div>'+
+    '<div style="opacity:.85;font-size:13px;">ธนาคารที่ใช้ง่าย</div></div>'+
+    '<div class="pad"><div class="card">'+
+    '<div class="label">อีเมล</div><input class="field" id="email" value="somchai@addbank.local">'+
+    '<div class="label">รหัสผ่าน</div><input class="field" id="pw" type="password" value="Password@123">'+
+    '<div class="err" id="err"></div>'+
+    '<button class="btn" id="go" onclick="doLogin()">เข้าสู่ระบบ</button>'+
+    '<div class="center" style="margin-top:12px;"><a class="link" onclick="registerScreen()">สมัครสมาชิกใหม่</a></div>'+
+    '<div class="center" style="margin-top:8px;"><a class="link" onclick="setupScreen()">เปลี่ยนเซิร์ฟเวอร์</a></div>'+
+    '</div><div class="muted center">ระบบตัวอย่าง — ไม่ใช่ธุรกรรมจริง</div></div>';
+}
+async function doLogin(){
+  var b=document.getElementById('go');b.disabled=true;b.textContent='กำลังเข้าสู่ระบบ...';
+  try{
+    var r=await api('/auth/login','POST',{email:document.getElementById('email').value.trim(),password:document.getElementById('pw').value});
+    token=r.accessToken;localStorage.setItem('addbank_token',token);localStorage.setItem('addbank_name',r.user.fullName);
+    dashboard();
+  }catch(e){document.getElementById('err').textContent=e.message;b.disabled=false;b.textContent='เข้าสู่ระบบ';}
+}
+function registerScreen(){
+  app.innerHTML='<div class="topbar"><i class="ti ti-arrow-left" onclick="loginScreen()"></i><b>สมัครสมาชิก</b></div>'+
+    '<div class="pad"><div class="card">'+
+    '<div class="label">ชื่อ-นามสกุล</div><input class="field" id="name">'+
+    '<div class="label">อีเมล</div><input class="field" id="email">'+
+    '<div class="label">รหัสผ่าน (อย่างน้อย 8 ตัว)</div><input class="field" id="pw" type="password">'+
+    '<div class="err" id="err"></div>'+
+    '<button class="btn" id="go" onclick="doRegister()">สร้างบัญชี</button></div></div>';
+}
+async function doRegister(){
+  var b=document.getElementById('go');b.disabled=true;b.textContent='กำลังสร้างบัญชี...';
+  try{
+    var r=await api('/auth/register','POST',{fullName:document.getElementById('name').value.trim(),email:document.getElementById('email').value.trim(),password:document.getElementById('pw').value});
+    token=r.accessToken;localStorage.setItem('addbank_token',token);localStorage.setItem('addbank_name',r.user.fullName);
+    dashboard();
+  }catch(e){document.getElementById('err').textContent=e.message;b.disabled=false;b.textContent='สร้างบัญชี';}
+}
+
+/* ---- DASHBOARD ---- */
+async function dashboard(){
+  app.innerHTML='<div class="topbar" style="justify-content:space-between;"><span>สวัสดี, '+(localStorage.getItem('addbank_name')||'')+'</span><i class="ti ti-logout" onclick="logout()"></i></div>'+
+    '<div class="banner">ระบบตัวอย่าง — ไม่ใช่ธุรกรรมจริง</div><div class="pad" id="body"><div class="muted center">กำลังโหลด...</div></div>';
+  try{
+    var accts=await api('/accounts');
+    var txns=await api('/transactions');
+    var totalBal=accts.reduce(function(s,a){return s+a.balance;},0);
+    var accHtml=accts.map(function(a){return '<div class="card" style="display:flex;align-items:center;gap:10px;">'+
+      '<div class="av" style="background:'+LIME+';color:#15301c;"><i class="ti ti-wallet"></i></div>'+
+      '<div style="flex:1;"><div>'+a.name+'</div><div class="muted">'+a.type+' • '+a.accountNumber+'</div></div>'+
+      '<b>'+money(a.balance)+'</b></div>';}).join('');
+    var txHtml=txns.slice(0,8).map(function(t){var c=t.direction==='CREDIT';return '<div class="txn"><div class="av" style="background:'+(c?GRN:DANGER)+';"><i class="ti '+(c?'ti-arrow-down-left':'ti-arrow-up-right')+'"></i></div>'+
+      '<div style="flex:1;"><div style="font-size:14px;">'+(t.description||t.type)+'</div><div class="muted">'+new Date(t.createdAt).toLocaleString('th-TH')+'</div></div>'+
+      '<b style="color:'+(c?GRN:DANGER)+';">'+(c?'+':'-')+money(t.amount)+'</b></div>';}).join('')||'<div class="muted center">ยังไม่มีรายการ</div>';
+    document.getElementById('body').innerHTML=
+      '<div style="background:'+GRN+';color:#fff;border-radius:16px;padding:18px;margin-bottom:14px;"><div style="opacity:.8;font-size:13px;">ยอดเงินรวม</div>'+
+      '<div style="font-size:30px;font-weight:600;">'+money(totalBal)+'</div></div>'+
+      accHtml+
+      '<button class="btn" style="margin:6px 0 16px;" onclick="transferScreen('+JSON.stringify(JSON.stringify(accts)).replace(/"/g,'&quot;')+')">โอนเงิน</button>'+
+      '<div style="font-weight:600;margin-bottom:4px;">รายการล่าสุด</div>'+txHtml;
+  }catch(e){
+    document.getElementById('body').innerHTML='<div class="err">'+e.message+'</div><button class="ghost" onclick="dashboard()">ลองใหม่</button>';
+  }
+}
+function logout(){token='';localStorage.removeItem('addbank_token');loginScreen();}
+
+/* ---- TRANSFER ---- */
+function transferScreen(accJson){
+  var accts=JSON.parse(accJson);
+  app.innerHTML='<div class="topbar"><i class="ti ti-arrow-left" onclick="dashboard()"></i><b>โอนเงิน</b></div>'+
+    '<div class="pad"><div class="card">'+
+    '<div class="label">จากบัญชี</div><select class="field" id="from">'+accts.map(function(a){return '<option value="'+a.id+'">'+a.name+' • '+money(a.balance)+'</option>';}).join('')+'</select>'+
+    '<div class="label">บัญชีปลายทาง</div><input class="field" id="to" placeholder="เลขบัญชีปลายทาง">'+
+    '<div class="label">จำนวนเงิน (บาท)</div><input class="field" id="amt" type="number" placeholder="0.00">'+
+    '<div class="label">บันทึกช่วยจำ</div><input class="field" id="note" placeholder="(ไม่บังคับ)">'+
+    '<div class="err" id="err"></div>'+
+    '<button class="btn" id="go" onclick="doTransfer()">โอนเงิน</button></div></div>';
+}
+async function doTransfer(){
+  var err=document.getElementById('err');err.textContent='';
+  var to=document.getElementById('to').value.trim(),amt=parseFloat(document.getElementById('amt').value);
+  if(!to){err.textContent='กรุณาใส่บัญชีปลายทาง';return;}
+  if(!amt||amt<=0){err.textContent='กรุณาใส่จำนวนเงินที่ถูกต้อง';return;}
+  var b=document.getElementById('go');b.disabled=true;b.textContent='กำลังโอน...';
+  try{
+    var r=await api('/transfers','POST',{fromAccountId:document.getElementById('from').value,toAccountNumber:to,amount:amt,channel:'OTHER',note:document.getElementById('note').value});
+    app.innerHTML='<div class="pad center" style="padding-top:60px;">'+
+      '<div class="av" style="width:78px;height:78px;background:'+GRN+';margin:0 auto;font-size:42px;"><i class="ti ti-check"></i></div>'+
+      '<div style="font-size:20px;font-weight:600;margin-top:14px;">โอนเงินสำเร็จ</div>'+
+      '<div style="font-size:30px;font-weight:600;color:'+GRN+';margin:8px 0;">'+money(r.amount)+'</div>'+
+      '<div class="card center"><div class="row"><span class="k">เลขอ้างอิง</span><span class="v">'+r.reference+'</span></div>'+
+      '<div class="row"><span class="k">ไปยัง</span><span class="v">'+r.to+'</span></div>'+
+      '<div class="row"><span class="k">ยอดคงเหลือ</span><span class="v">'+money(r.balanceAfter)+'</span></div></div>'+
+      '<button class="btn" onclick="dashboard()">เสร็จสิ้น</button></div>';
+  }catch(e){err.textContent=e.message;b.disabled=false;b.textContent='โอนเงิน';}
+}
+
+/* ---- boot ---- */
+if(!API){setupScreen();}else if(token){dashboard();}else{loginScreen();}
+</script>
+</body>
+</html>
