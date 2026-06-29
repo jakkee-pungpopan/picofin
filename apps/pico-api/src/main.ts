@@ -12,8 +12,8 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }));
   app.useGlobalFilters(new AllExceptionsFilter());
   const cfg = new DocumentBuilder()
-    .setTitle('PicoFin API')
-    .setDescription('Pico Finance lending platform (DEMO). Lend from own capital only; no public deposits.')
+    .setTitle('PicoFin API — ระบบสินเชื่อพิโกไฟแนนซ์')
+    .setDescription('แพลตฟอร์มสินเชื่อพิโกไฟแนนซ์ (ตัวอย่าง) — ปล่อยกู้จากทุนตัวเองเท่านั้น ไม่รับเงินฝากจากประชาชน')
     .setVersion('0.1.0').addBearerAuth().build();
   SwaggerModule.setup('api/docs', app, SwaggerModule.createDocument(app, cfg));
   const port = process.env.PORT || process.env.API_PORT || 3000;
