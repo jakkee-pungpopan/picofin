@@ -88,6 +88,10 @@ model LoanApplication {
   idCardFront   String?
   idCardBack    String?
   selfieWithId  String?
+  salarySlip    String?
+  guarantorName String?
+  guarantorPhone String?
+  guarantorIdCard String?
   status       AppStatus @default(PENDING)
   decisionNote String?
   createdAt    DateTime  @default(now())
