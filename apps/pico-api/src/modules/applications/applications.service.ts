@@ -38,7 +38,7 @@ export class ApplicationsService {
     if (!compliance.ok) throw new BadRequestException('ผิดเงื่อนไขพิโก: ' + compliance.violations.join(' | '));
 
     return this.prisma.loanApplication.create({
-      data: { borrowerId, amount: toSatang(dto.amount), annualRatePct: dto.annualRatePct, termMonths: dto.termMonths, purpose: dto.purpose },
+      data: { borrowerId, amount: toSatang(dto.amount), annualRatePct: dto.annualRatePct, termMonths: dto.termMonths, purpose: dto.purpose, occupation: dto.occupation, monthlyIncome: dto.monthlyIncome, idCardFront: dto.idCardFront, idCardBack: dto.idCardBack, selfieWithId: dto.selfieWithId },
     });
   }
 
