@@ -64,7 +64,7 @@ function loginScreen(){root.innerHTML='<div class="login" style="text-align:cent
   '<button class="btn" onclick="doLogin()">เข้าสู่ระบบ</button>'+
   '<div style="margin-top:12px;"><a class="link" onclick="registerScreen()">ลงทะเบียนเป็นลูกค้า (ผู้กู้)</a></div>'+
   '<div style="margin-top:8px;"><a class="link" onclick="setupScreen()">เปลี่ยนเซิร์ฟเวอร์</a></div>'+
-  '<div class="label" style="margin-top:14px;">ตัวอย่าง: owner@ / staff@ / somchai@picofin.local (รหัส Password@123)</div></div>';}
+  '<div class="label" style="margin-top:14px;">: owner@ / staff@ / somchai@picofin.local (รหัส Password@123)</div></div>';}
 async function doLogin(){try{const r=await api('/auth/login','POST',{email:document.getElementById('e').value.trim(),password:document.getElementById('p').value});
   TOKEN=r.accessToken;ME=r.user;localStorage.setItem('pf_token',TOKEN);localStorage.setItem('pf_me',JSON.stringify(ME));route();}
   catch(e){document.getElementById('er').textContent=e.message;}}
@@ -75,7 +75,7 @@ function registerScreen(){root.innerHTML='<div class="login"><h3>ลงทะเ
   '<div class="label">อีเมล</div><input id="e">'+
   '<div class="label">รหัสผ่าน (อย่างน้อย 8 ตัว)</div><input id="p" type="password">'+
   '<div class="label">เลขบัตรประชาชน</div><input id="nid" value="1100700999999">'+
-  '<div class="label">จังหวัด (ภูมิลำเนา)</div><input id="pv" value="เชียงใหม่">'+
+  '<div class="label">จังหวัด (ภูมิลำเนา)</div><input id="pv" value="บุรีรัมย์">'+
   '<div class="err" id="er"></div><button class="btn" onclick="doReg()">สร้างบัญชี</button>'+
   '<div style="margin-top:10px;"><a class="link" onclick="loginScreen()">กลับไปเข้าสู่ระบบ</a></div></div>';}
 async function doReg(){try{const r=await api('/auth/register','POST',{fullName:document.getElementById('n').value.trim(),email:document.getElementById('e').value.trim(),password:document.getElementById('p').value,nationalId:document.getElementById('nid').value.trim(),province:document.getElementById('pv').value.trim()});
@@ -90,7 +90,7 @@ function shellOp(active,body){
   var tabs=[['dash','แดชบอร์ด'],['apps','คำขอกู้'],['loans','สัญญากู้'],['borrowers','ลูกค้า']];
   root.innerHTML='<div class="top"><div class="brand"><i class="ti ti-building-bank"></i> PicoFin</div>'+
     '<div><span style="font-size:13px;margin-right:12px;">'+ME.fullName+' ('+tR(ME.role)+')</span><i class="ti ti-logout" style="cursor:pointer;" onclick="logout()"></i></div></div>'+
-    '<div class="banner">ระบบตัวอย่าง — ปล่อยกู้จากทุนตัวเอง ไม่รับฝากเงินประชาชน</div>'+
+    '<div class="banner">ระบบสินเชื่อพิโกไฟแนนซ์ — ปล่อยกู้จากทุนตัวเอง ไม่รับฝากเงินประชาชน</div>'+
     '<div class="tabs">'+tabs.map(t=>'<button class="'+(active===t[0]?'on':'')+'" onclick="operator(\''+t[0]+'\')">'+t[1]+'</button>').join('')+'</div>'+
     '<div class="wrap"><div class="pad" id="body">กำลังโหลด...</div></div>';
 }
@@ -135,7 +135,7 @@ function shellCu(active,body){
   var tabs=[['apply','ขอสินเชื่อ'],['myapps','คำขอของฉัน'],['myloans','สัญญาของฉัน']];
   root.innerHTML='<div class="top"><div class="brand"><i class="ti ti-user"></i> PicoFin</div>'+
     '<div><span style="font-size:13px;margin-right:12px;">'+ME.fullName+'</span><i class="ti ti-logout" style="cursor:pointer;" onclick="logout()"></i></div></div>'+
-    '<div class="banner">ระบบตัวอย่าง — สินเชื่อพิโกไฟแนนซ์</div>'+
+    '<div class="banner">ระบบสินเชื่อพิโกไฟแนนซ์ — สินเชื่อพิโกไฟแนนซ์</div>'+
     '<div class="tabs">'+tabs.map(t=>'<button class="'+(active===t[0]?'on':'')+'" onclick="customer(\''+t[0]+'\')">'+t[1]+'</button>').join('')+'</div>'+
     '<div class="wrap"><div class="pad" id="body">กำลังโหลด...</div></div>';
 }
