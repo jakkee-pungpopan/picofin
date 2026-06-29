@@ -92,6 +92,10 @@ model LoanApplication {
   guarantorName String?
   guarantorPhone String?
   guarantorIdCard String?
+  collateralType String?
+  collateralDetail String?
+  collateralValue Int?
+  collateralPhoto String?
   status       AppStatus @default(PENDING)
   decisionNote String?
   createdAt    DateTime  @default(now())
