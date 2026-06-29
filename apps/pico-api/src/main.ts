@@ -5,6 +5,8 @@ import helmet from 'helmet';
 import { AppModule } from './app.module';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 
+Object.defineProperty(BigInt.prototype, 'toJSON', { value: function () { return Number(this); }, configurable: true });
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { cors: true });
   app.useBodyParser('json', { limit: '15mb' });
