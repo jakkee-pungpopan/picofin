@@ -10,7 +10,7 @@ services:
     plan: free
     dockerfilePath: ./apps/pico-api/Dockerfile
     dockerContext: ./apps/pico-api
-    preDeployCommand: "npx prisma migrate deploy && npm run seed"
+    preDeployCommand: "npx prisma db push --skip-generate && npm run seed"
     envVars:
       - key: DATABASE_URL
         fromDatabase: { name: picofin-db, property: connectionString }
