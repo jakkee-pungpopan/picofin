@@ -71,17 +71,18 @@ function setupScreen(msg){root.innerHTML='<div class="login"><h3>PicoFin — ต
   '<input id="u" placeholder="https://picofin-api.onrender.com" value="'+esc(API)+'">'+
   '<button class="btn" onclick="(function(){var v=document.getElementById(\'u\').value.trim();if(v){API=v;localStorage.setItem(\'pf_api\',v);loginScreen();}})()">บันทึก</button></div>';}
 
-function loginScreen(){root.innerHTML='<div class="login" style="text-align:center;">'+
+function loginScreen(){setTimeout(function(){try{var s=localStorage.getItem('pf_rm');if(s){var o=JSON.parse(s);var e=document.getElementById('e'),pp=document.getElementById('p'),c=document.getElementById('rmb');if(e&&o.e)e.value=o.e;if(pp&&o.p)pp.value=o.p;if(c)c.checked=true;}}catch(_x){}},60);root.innerHTML='<div class="login" style="text-align:center;">'+
   '<div style="font-size:40px;color:var(--pri);"><i class="ti ti-building-bank"></i></div>'+
   '<h3>PicoFin</h3><div class="label" style="margin-bottom:14px;">ระบบจัดการสินเชื่อพิโกไฟแนนซ์</div>'+
   '<div style="text-align:left;"><div class="label">อีเมล</div><input id="e" value="owner@picofin.local">'+
-  '<div class="label">รหัสผ่าน</div><input id="p" type="password" value="Password@123">'+
+  '<div class="label">รหัสผ่าน</div><div style="position:relative"><input id="p" type="password" value="Password@123" style="padding-right:46px"><button type="button" onclick="togglePw(this)" style="position:absolute;right:8px;top:8px;background:none;border:0;cursor:pointer;font-size:18px;line-height:1">👁</button></div>'+
   '<div class="err" id="er"></div></div>'+
-  '<button class="btn" onclick="doLogin()">เข้าสู่ระบบ</button>'+
+  '<label style="display:flex;align-items:center;gap:8px;margin:8px 0 4px;font-size:14px;cursor:pointer;color:#334"><input type="checkbox" id="rmb" style="width:auto;margin:0"> จดจำรหัสผ่าน</label><button class="btn" onclick="doLogin()">เข้าสู่ระบบ</button>'+
   '<div style="margin-top:12px;"><a class="link" onclick="registerScreen()">ลงทะเบียนเป็นลูกค้า (ผู้กู้)</a></div>'+
   '<div style="margin-top:8px;"><a class="link" onclick="setupScreen()">เปลี่ยนเซิร์ฟเวอร์</a></div>'+
   '<div class="label" style="margin-top:14px;">: owner@ / staff@ / somchai@picofin.local (รหัส Password@123)</div></div>';}
-async function doLogin(){try{const r=await api('/auth/login','POST',{email:document.getElementById('e').value.trim(),password:document.getElementById('p').value});
+async function togglePw(b){var el=b.parentNode.querySelector('input');if(!el)return;if(el.type==='pass'+'word'){el.type='text';b.textContent='🙈';}else{el.type='pass'+'word';b.textContent='👁';}}
+function doLogin(){try{var _r=document.getElementById('rmb');if(_r){if(_r.checked){localStorage.setItem('pf_rm',JSON.stringify({e:document.getElementById('e').value,p:document.getElementById('p').value}));}else{localStorage.removeItem('pf_rm');}}}catch(_y){}try{const r=await api('/auth/login','POST',{email:document.getElementById('e').value.trim(),password:document.getElementById('p').value});
   TOKEN=r.accessToken;ME=r.user;localStorage.setItem('pf_token',TOKEN);localStorage.setItem('pf_me',JSON.stringify(ME));route();}
   catch(e){document.getElementById('er').textContent=e.message;}}
 function logout(){TOKEN='';ME=null;localStorage.removeItem('pf_token');localStorage.removeItem('pf_me');loginScreen();}
@@ -89,7 +90,7 @@ function logout(){TOKEN='';ME=null;localStorage.removeItem('pf_token');localStor
 function registerScreen(){setTimeout(function(){if(typeof thLoad==='function')thLoad();},60);root.innerHTML='<div class="login"><h3>ลงทะเบียนลูกค้า (ผู้กู้)</h3>'+
   '<div class="label">ชื่อ *</div><input id="fn"><div class="label">นามสกุล *</div><input id="ln">'+
   '<div class="label">อีเมล</div><input id="e">'+
-  '<div class="label">รหัสผ่าน (อย่างน้อย 8 ตัว)</div><input id="p" type="password">'+
+  '<div class="label">รหัสผ่าน (อย่างน้อย 8 ตัว)</div><div style="position:relative"><input id="p" type="password" style="padding-right:46px"><button type="button" onclick="togglePw(this)" style="position:absolute;right:8px;top:8px;background:none;border:0;cursor:pointer;font-size:18px;line-height:1">👁</button></div>'+
   '<div class="label">เลขบัตรประชาชน (13 หลัก) *</div><input id="nid" value="1100700999999">'+
   '<div class="label">จังหวัด *</div><select id="pv" onchange="onProv()"><option value="">— เลือกจังหวัด —</option></select><div class="label">อำเภอ/เขต *</div><select id="amp" onchange="onAmp()"><option value="">—</option></select><div class="label">ตำบล/แขวง *</div><select id="tam" onchange="onTam()"><option value="">—</option></select><div class="label">รหัสไปรษณีย์</div><input id="zip" readonly placeholder="อัตโนมัติ"><div class="label">เบอร์โทรศัพท์ *</div><input id="ph" value="" placeholder="08xxxxxxxx"><div class="label">บ้านเลขที่ / หมู่ / ซอย / ถนน *</div><input id="ad" value="" placeholder="เช่น 99/1 หมู่ 2 ถ.จิระ">'+
   '<div class="err" id="er"></div><button class="btn" onclick="doReg()">สร้างบัญชี</button>'+
