@@ -52,14 +52,14 @@ tbody tr{transition:.1s}tbody tr:hover{background:#f7fafc}
 @media(max-width:560px){.wrap{padding:0 12px}.val{font-size:22px}.top{padding:12px 14px}.brand{font-size:17px}}</style></head>
 <body><div id="root"></div>
 <script>
-var API=localStorage.getItem('pf_api')||'',TOKEN=localStorage.getItem('pf_token')||'',ME=JSON.parse(localStorage.getItem('pf_me')||'null');
+var API=localStorage.getItem('pf_api')||'https://picofin-api.onrender.com',TOKEN=localStorage.getItem('pf_token')||'',ME=JSON.parse(localStorage.getItem('pf_me')||'null');
 var root=document.getElementById('root');
 function B(n){return '฿'+Number(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});}
 function tR(r){return ({OPERATOR:'ผู้ประกอบการ',STAFF:'พนักงาน',BORROWER:'ลูกค้า'})[r]||r;}
 function tS(s){return ({PENDING:'รออนุมัติ',APPROVED:'อนุมัติแล้ว',REJECTED:'ปฏิเสธ',CANCELLED:'ยกเลิก',ACTIVE:'กำลังผ่อน',CLOSED:'ปิดสัญญา',DEFAULTED:'ผิดนัด',DUE:'รอชำระ',PAID:'ชำระแล้ว',OVERDUE:'เกินกำหนด',PARTIAL:'ชำระบางส่วน'})[s]||s;}
 function esc(s){return (''+s).replace(/"/g,'&quot;');}
 async function api(path,method,body){
-  const r=await fetch(API.replace(/\/$/,'')+'/api'+path,{method:method||'GET',
+  const r=await fetch(((API&&!/github\.io/.test(API))?API:'https://picofin-api.onrender.com').replace(/\/$/,'')+'/api'+path,{method:method||'GET',
     headers:Object.assign({'Content-Type':'application/json'},TOKEN?{Authorization:'Bearer '+TOKEN}:{}),
     body:body?JSON.stringify(body):undefined});
   const d=await r.json().catch(()=>null);
