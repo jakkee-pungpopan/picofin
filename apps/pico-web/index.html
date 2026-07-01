@@ -81,8 +81,8 @@ function loginScreen(){setTimeout(function(){try{var s=localStorage.getItem('pf_
   '<div style="margin-top:12px;"><a class="link" onclick="registerScreen()">ลงทะเบียนเป็นลูกค้า (ผู้กู้)</a></div>'+
   '<div style="margin-top:8px;"><a class="link" onclick="setupScreen()">เปลี่ยนเซิร์ฟเวอร์</a></div>'+
   '<div class="label" style="margin-top:14px;">: owner@ / staff@ / somchai@picofin.local (รหัส Password@123)</div></div>';}
-async function togglePw(b){var el=b.parentNode.querySelector('input');if(!el)return;if(el.type==='pass'+'word'){el.type='text';b.textContent='🙈';}else{el.type='pass'+'word';b.textContent='👁';}}
-function doLogin(){try{var _r=document.getElementById('rmb');if(_r){if(_r.checked){localStorage.setItem('pf_rm',JSON.stringify({e:document.getElementById('e').value,p:document.getElementById('p').value}));}else{localStorage.removeItem('pf_rm');}}}catch(_y){}try{const r=await api('/auth/login','POST',{email:document.getElementById('e').value.trim(),password:document.getElementById('p').value});
+function togglePw(b){var el=b.parentNode.querySelector('input');if(!el)return;if(el.type==='pass'+'word'){el.type='text';b.textContent='🙈';}else{el.type='pass'+'word';b.textContent='👁';}}
+async function doLogin(){try{var _r=document.getElementById('rmb');if(_r){if(_r.checked){localStorage.setItem('pf_rm',JSON.stringify({e:document.getElementById('e').value,p:document.getElementById('p').value}));}else{localStorage.removeItem('pf_rm');}}}catch(_y){}try{const r=await api('/auth/login','POST',{email:document.getElementById('e').value.trim(),password:document.getElementById('p').value});
   TOKEN=r.accessToken;ME=r.user;localStorage.setItem('pf_token',TOKEN);localStorage.setItem('pf_me',JSON.stringify(ME));route();}
   catch(e){document.getElementById('er').textContent=e.message;}}
 function logout(){TOKEN='';ME=null;localStorage.removeItem('pf_token');localStorage.removeItem('pf_me');loginScreen();}
